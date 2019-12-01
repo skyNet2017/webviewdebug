@@ -33,6 +33,17 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
     private final DebugWebViewClientLogger logger;
     private final OnUnhandledInputEventMethodProxy onUnhandledInputEventMethodProxy;
 
+    public boolean isJsDebugPannelEnable() {
+        return jsDebugPannelEnable;
+    }
+
+    public void setJsDebugPannelEnable(boolean jsDebugPannelEnable) {
+        this.jsDebugPannelEnable = jsDebugPannelEnable;
+    }
+
+    private boolean jsDebugPannelEnable;
+    private String userAgent;
+
     public DebugWebViewClient() {
         this(new WebViewClient());
     }
@@ -116,11 +127,52 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Deprecated
     public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
         //noinspection deprecation
-        final WebResourceResponse retVal = client.shouldInterceptRequest(view, url);
+         WebResourceResponse retVal = client.shouldInterceptRequest(view, url);
+        if(view.getUrl().equals(url) && url.startsWith("http")){
+            if(retVal != null){
+                if(retVal.getData() != null && retVal.getMimeType().contains("text/html")){
+                    Log.d(BuildConfig.DEFAULT_LOG_TAG,"encoding:"+retVal.getEncoding());
+                    String html = StreamUtil.getStreamToStr(retVal.getData());
+                    if(html.contains("<head>") && !html.contains("eruda.init(")){
+                        String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
+                                "<script>eruda.init()</script>";
+                        html = html.replace("<head>",str);
+                        retVal = new WebResourceResponse("text/html","utf-8",StreamUtil.getStrToStream(html));
+                        logger.shouldInterceptRequest(view, url, retVal);
+                        return retVal;
+                    }
+                }
+            }else {
+                if (okHttpClient == null) {
+                    okHttpClient = buildOkClient();
+                }
+
+                Request.Builder okRequest = new Request.Builder()
+                        .addHeader("User-Agent",userAgent)
+                        .url(url);
+                    okRequest.get();
+                    try {
+                        Response response = okHttpClient.newCall(okRequest.build()).execute();
+                        String html = response.body().string();
+                        if (html.contains("<head>") && !html.contains("eruda.init(")) {
+                            String str = "<head>" + "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
+                                    "<script>eruda.init()</script>";
+                            html = html.replace("<head>", str);
+                            retVal = new WebResourceResponse("text/html", "utf-8", StreamUtil.getStrToStream(html));
+                            logger.shouldInterceptRequest(view, url, retVal);
+                            Log.d(BuildConfig.DEFAULT_LOG_TAG, "buildOkClient: html" + html);
+                            return retVal;
+                        }
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
+
+            }
+        }
+
         logger.shouldInterceptRequest(view, url, retVal);
         return retVal;
     }
@@ -131,14 +183,14 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
         WebResourceResponse retVal = client.shouldInterceptRequest(view, request);
-        if(request.isForMainFrame()){
+        if(request.isForMainFrame() && request.getUrl().toString().startsWith("http")){
             if(retVal != null){
                 if(retVal.getStatusCode() == 200 && retVal.getMimeType().contains("text/html")){
                     Log.d(BuildConfig.DEFAULT_LOG_TAG,"encoding:"+retVal.getEncoding());
                     String html = StreamUtil.getStreamToStr(retVal.getData());
-                    if(html.contains("<head>")){
+                    if(html.contains("<head>") && !html.contains("eruda.init(")){
                         String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
-                                "<script>eruda.init();</script>";
+                                "<script>eruda.init()</script>";
                         html = html.replace("<head>",str);
                         retVal = new WebResourceResponse("text/html","utf-8",StreamUtil.getStrToStream(html));
                         logger.shouldInterceptRequest(view, request, retVal);
@@ -160,26 +212,22 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
                 }
                 if("GET".equals(request.getMethod())){
                     okRequest.get();
-                }else if("POST".equals(request.getMethod())){
-                    okRequest.post(null);
-                }
-
-                try {
-                    Response response =okHttpClient.newCall(okRequest.build()).execute();
-                    String html = response.body().string();
-                    if(html.contains("<head>")){
-                        String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
-                                "<script>eruda.init();</script>";
-                        html = html.replace("<head>",str);
-                        retVal = new WebResourceResponse("text/html","utf-8",StreamUtil.getStrToStream(html));
-                        logger.shouldInterceptRequest(view, request, retVal);
-                        Log.d(BuildConfig.DEFAULT_LOG_TAG,"buildOkClient: html"+html);
-                        return retVal;
+                    try {
+                        Response response =okHttpClient.newCall(okRequest.build()).execute();
+                        String html = response.body().string();
+                        if(html.contains("<head>")&& !html.contains("eruda.init(")){
+                            String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
+                                    "<script>eruda.init()</script>";
+                            html = html.replace("<head>",str);
+                            retVal = new WebResourceResponse("text/html","utf-8",StreamUtil.getStrToStream(html));
+                            logger.shouldInterceptRequest(view, request, retVal);
+                            Log.d(BuildConfig.DEFAULT_LOG_TAG,"buildOkClient: html"+html);
+                            return retVal;
+                        }
+                    } catch (Throwable e) {
+                        e.printStackTrace();
                     }
-                } catch (Throwable e) {
-                    e.printStackTrace();
                 }
-
             }
         }
         logger.shouldInterceptRequest(view, request, retVal);
@@ -188,6 +236,7 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
 
     private OkHttpClient buildOkClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        userAgent = System.getProperty("http.agent");
         return builder.build();
     }
 

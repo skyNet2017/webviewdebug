@@ -124,7 +124,7 @@ public class DebugWebViewClientLogger implements LogControl {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+
     public void shouldInterceptRequest(WebView view, String url, WebResourceResponse retVal) {
         if (loggingEnabled) {
             final String result = retVal == null ? "false" : StringUtils.toString(retVal);

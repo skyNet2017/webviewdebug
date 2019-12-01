@@ -13,16 +13,18 @@ import uk.co.alt236.webviewdebug.DebugWebViewClient;
 
 public class MainActivity extends AppCompatActivity {
 
+     WebView webView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final WebView webView = new WebView(this);
+         webView = new WebView(getApplicationContext());
         initSettings(webView);
         setContentView(webView);
 
 
         final DebugWebViewClient debugWebViewClient = new DebugWebViewClient(new WebViewClient());
         debugWebViewClient.setLoggingEnabled(true);
+        debugWebViewClient.setJsDebugPannelEnable(true);
         webView.setWebViewClient(debugWebViewClient);
 
         DebugWebChromeClient chromeClient = new DebugWebChromeClient(new WebChromeClient());
@@ -85,5 +87,20 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
+
+
+        //safe
+        webView.removeJavascriptInterface("searchBoxJavaBridge_");
+        webView.removeJavascriptInterface("accessibility");
+        webView.removeJavascriptInterface("accessibilityTraversal");
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(webView.canGoBack()){
+            webView.goBack();
+            return;
+        }
+        super.onBackPressed();
     }
 }

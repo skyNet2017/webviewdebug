@@ -23,12 +23,16 @@ public class StringUtils {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+
     public static String toString(final WebResourceResponse response) {
         if (response == null) {
             return "<NULL>";
         } else {
-            return response.getStatusCode() + " " + response.getReasonPhrase();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                return response.getStatusCode() + " " + response.getReasonPhrase();
+            }else {
+                return response.toString();
+            }
         }
     }
 
