@@ -28,6 +28,7 @@ import com.mdit.library.proxy.MethodProxy;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -55,10 +56,17 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
             public Object intercept(Object object, Object[] args, MethodProxy proxy) throws Exception {
                 Object obj = null;
                 Log.d("MethodProxy", String.format("method name: %s, args: %s",proxy.getMethodName(),Arrays.toString(args)));
+                long startTime = System.nanoTime();
                 obj = proxy.invokeSuper(object, args);
+                long cost = System.nanoTime() - startTime;
+                if(cost > 1000000){
+                    Log.d("MethodProxy", String.format("method name: %s, time cost %sms, return value: %s",
+                            proxy.getMethodName(),cost/1000000,obj== null ? "null" : obj.toString()));
+                }else {
+                    Log.d("MethodProxy", String.format("method name: %s, time cost %sus, return value: %s",
+                            proxy.getMethodName(),cost/1000,obj== null ? "null" : obj.toString()));
+                }
 
-                Log.d("MethodProxy", String.format("method name: %s, return value: %s",
-                        proxy.getMethodName(),obj== null ? "null" : obj.toString()));
                 return obj;
             }
         });

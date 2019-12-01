@@ -32,6 +32,19 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebChromeClient(chromeClient);
 
         webView.loadUrl("https://www.baidu.com");
+
+        testWrap();
+    }
+
+    private void testWrap() {
+        try {
+            MethodTest methodTest = (MethodTest) DebugWebViewClient.wrapAClassByMethodProxy(this,MethodTest.class);
+            methodTest.callPhone("15989369554");
+            methodTest.callPhone2("15989369554",5);
+        }catch (Throwable throwable){
+            throwable.printStackTrace();
+        }
+
     }
 
     private void initSettings(WebView webView) {

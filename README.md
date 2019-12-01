@@ -27,7 +27,7 @@ For as long as your app is does not need any of the listed, non-overridden, meth
 	}
 
 	dependencies {
-		compile 'com.github.skyNet2017:webviewdebug:1.1.0'
+		compile 'com.github.skyNet2017:webviewdebug:1.1.1'
 	}
 ```
 
@@ -37,7 +37,28 @@ Output in logcat uses this tag: `DebugWVClient,DebugWVClient-chrome`.
 
 
 
-### Debugging a WebViewClient,WebChromeClient
+## 1.a method Proxy for your javaInterfaceObject:
+
+<https://github.com/skyNet2017/MethodInterceptProxy>
+
+```
+//demo:
+JsObj jsobject = (JsObj) DebugWebViewClient.wrapAClassByMethodProxy(this,JsObj.class);
+
+webView.addJavascriptInterface(jsobject, TAG);
+```
+
+## 2.inject edura.js to have a js debug pannel on any url
+
+<https://github.com/liriliri/eruda>
+
+```
+debugWebViewClient.setJsDebugPannelEnable(true);
+```
+
+
+
+### 3.Debugging a WebViewClient,WebChromeClient
 ###### 1. Fast way if you already have a WebViewClient
 If you already have a `WebViewClient` implementation, wrap it with `DebugWebViewClient` before assigning it to the WebView.
 
@@ -79,6 +100,20 @@ Both `DebugWebViewClient`  and `DebugWebViewClientLogger` implemetn `LogControl`
 `setLoggingEnabled(boolean)` is a global switch which overrides `setLogKeyEventsEnabled(boolean)`
 
 ## Sample output
+
+```
+methodProxy:
+
+D/MethodProxy: method name: callPhone, args: [15989369554]
+D/MethodProxy: method name: callPhone, time cost 19us, return value: phone called 15989369554
+D/MethodProxy: method name: callPhone2, args: [15989369554, 5]
+D/MethodProxy: method name: callPhone2, time cost 13us, return value: phone called 2 15989369554 last times:5
+```
+
+
+
+
+
 ```
 D/DebugWVClient: All methods implemented :)
 I/DebugWVClient: ---> onPageStarted() http://www.google.com/
