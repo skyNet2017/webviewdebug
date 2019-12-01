@@ -1,9 +1,13 @@
 # WEBVIEW DEBUG
 [![Android Arsenal]( https://img.shields.io/badge/Android%20Arsenal-webviewdebug-green.svg?style=flat )]( https://android-arsenal.com/details/3/6436 )
 
-Provides a logging wrapper around a WebViewClient, in order to figure out what is going on.
+[![](https://jitpack.io/v/skyNet2017/webviewdebug.svg)](https://jitpack.io/#skyNet2017/webviewdebug)
 
-This happens by creating a `DebugWebViewClient` which logs events and passes them to an enclosed `WebViewClient`.
+
+
+Provides a logging wrapper around a WebViewClient,WebChromeClient, in order to figure out what is going on.
+
+This happens by creating a `DebugWebViewClient,DebugWebChromeClient` which logs events and passes them to an enclosed `WebViewClient`,WebChromeClient.
 
 ## Warning
 The `DebugWebViewClient` is implementing all `WebViewClient` up to API 26. If your `WebViewClient` is implementing a method that the `DebugWebViewClient` does not, and that method is critical for your business logic, then your app will probably not work properly.
@@ -18,27 +22,34 @@ For as long as your app is does not need any of the listed, non-overridden, meth
 ```groovy
 	repositories {
 		maven {
-			url "https://dl.bintray.com/alt236/maven"
+			maven { url "https://jitpack.io" }
 		}
 	}
 
 	dependencies {
-		compile 'uk.co.alt236:webviewdebug:1.0.0'
+		compile 'com.github.skyNet2017:webviewdebug:1.1.0'
 	}
 ```
 
 ## Usage
 
-Output in logcat uses this tag: `DebugWVClient`.
+Output in logcat uses this tag: `DebugWVClient,DebugWVClient-chrome`.
 
-### Debugging a WebViewClient
+
+
+### Debugging a WebViewClient,WebChromeClient
 ###### 1. Fast way if you already have a WebViewClient
 If you already have a `WebViewClient` implementation, wrap it with `DebugWebViewClient` before assigning it to the WebView.
 
 ```java
+
 final DebugWebViewClient debugWebViewClient = new DebugWebViewClient(new MyCustomWebViewClient());
 debugWebViewClient.setLoggingEnabled(true);
 webView.setWebViewClient(debugWebViewClient);
+
+DebugWebChromeClient chromeClient = new DebugWebChromeClient(new MyCustomWebChromeClient());
+chromeClient.setLoggingEnabled(true);
+webView.setWebChromeClient(chromeClient);
 ```
 
 ###### 2. You have a custom WebViewClient but want more control
@@ -72,6 +83,7 @@ Both `DebugWebViewClient`  and `DebugWebViewClientLogger` implemetn `LogControl`
 D/DebugWVClient: All methods implemented :)
 I/DebugWVClient: ---> onPageStarted() http://www.google.com/
 I/DebugWVClient:      shouldInterceptRequest() 1/3 CALL       : GET http://www.google.com/
+I/DebugWVClient-chrome:      onProgressChanged()        : 10  -->from url: https://www.google.com/
 I/DebugWVClient:      shouldInterceptRequest() 2/3 REQ HEADERS: {User-Agent=Mozilla/5.0 (Linux; Android 8.0.0; Android SDK built for x86 Build/OSR1.170720.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.125 Mobile Safari/537.36, Accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8, Upgrade-Insecure-Requests=1}
 I/DebugWVClient:      shouldInterceptRequest() 3/3 INTERCEPT  : false
 I/DebugWVClient:      onLoadResource() http://www.google.com/
@@ -205,13 +217,13 @@ I/DebugWVClient:      onLoadResource() https://www.gstatic.com/images/branding/p
 
 ## License
     Copyright (C) 2017 Alexandros Schillings
-
+    
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-
+    
        http://www.apache.org/licenses/LICENSE-2.0
-
+    
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
