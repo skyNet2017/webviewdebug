@@ -21,6 +21,13 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.io.IOException;
+import java.util.Map;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class DebugWebViewClient extends WebViewClient implements LogControl {
     private final WebViewClient client;
     private final DebugWebViewClientLogger logger;
@@ -108,6 +115,7 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
         client.onPageCommitVisible(view, url);
     }
 
+    @Override
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Deprecated
     public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
@@ -117,12 +125,70 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
         return retVal;
     }
 
+    OkHttpClient okHttpClient;
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        final WebResourceResponse retVal = client.shouldInterceptRequest(view, request);
+        WebResourceResponse retVal = client.shouldInterceptRequest(view, request);
+        if(request.isForMainFrame()){
+            if(retVal != null){
+                if(retVal.getStatusCode() == 200 && retVal.getMimeType().contains("text/html")){
+                    Log.d(BuildConfig.DEFAULT_LOG_TAG,"encoding:"+retVal.getEncoding());
+                    String html = StreamUtil.getStreamToStr(retVal.getData());
+                    if(html.contains("<head>")){
+                        String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
+                                "<script>eruda.init();</script>";
+                        html = html.replace("<head>",str);
+                        retVal = new WebResourceResponse("text/html","utf-8",StreamUtil.getStrToStream(html));
+                        logger.shouldInterceptRequest(view, request, retVal);
+                        return retVal;
+                    }
+                }
+            }else {
+                if(okHttpClient == null){
+                    okHttpClient = buildOkClient();
+                }
+                Map<String,String> headers = request.getRequestHeaders();
+                Request.Builder okRequest = new Request.Builder()
+                        .url(request.getUrl().toString());
+                if(!headers.isEmpty()){
+                    for (Map.Entry<String, String> entry :
+                            headers.entrySet()) {
+                        okRequest.addHeader(entry.getKey(), entry.getValue());
+                    }
+                }
+                if("GET".equals(request.getMethod())){
+                    okRequest.get();
+                }else if("POST".equals(request.getMethod())){
+                    okRequest.post(null);
+                }
+
+                try {
+                    Response response =okHttpClient.newCall(okRequest.build()).execute();
+                    String html = response.body().string();
+                    if(html.contains("<head>")){
+                        String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
+                                "<script>eruda.init();</script>";
+                        html = html.replace("<head>",str);
+                        retVal = new WebResourceResponse("text/html","utf-8",StreamUtil.getStrToStream(html));
+                        logger.shouldInterceptRequest(view, request, retVal);
+                        Log.d(BuildConfig.DEFAULT_LOG_TAG,"buildOkClient: html"+html);
+                        return retVal;
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
         logger.shouldInterceptRequest(view, request, retVal);
         return retVal;
+    }
+
+    private OkHttpClient buildOkClient() {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        return builder.build();
     }
 
     @Override
