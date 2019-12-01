@@ -1,6 +1,7 @@
 package uk.co.alt236.webviewdebug;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Build;
@@ -21,7 +22,13 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.mdit.library.proxy.Enhancer;
+import com.mdit.library.proxy.MethodInterceptor;
+import com.mdit.library.proxy.MethodProxy;
+
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 
 import okhttp3.OkHttpClient;
@@ -32,6 +39,32 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
     private final WebViewClient client;
     private final DebugWebViewClientLogger logger;
     private final OnUnhandledInputEventMethodProxy onUnhandledInputEventMethodProxy;
+
+
+    public static Object wrapAClassByMethodProxy(Context context,Class clazz){
+
+        Enhancer enhancer = new Enhancer(context.getApplicationContext());
+        enhancer.setSuperclass(clazz);
+        //目标对象拦截器，实现MethodInterceptor
+        //Object object为目标对象
+        //Method method为目标方法
+        //Object[] args 为参数，
+        //MethodProxy proxy CGlib方法代理对象
+        enhancer.setCallback(new MethodInterceptor() {
+            @Override
+            public Object intercept(Object object, Object[] args, MethodProxy proxy) throws Exception {
+                Object obj = null;
+                Log.d("MethodProxy", String.format("method name: %s, args: %s",proxy.getMethodName(),Arrays.toString(args)));
+                obj = proxy.invokeSuper(object, args);
+
+                Log.d("MethodProxy", String.format("method name: %s, return value: %s",
+                        proxy.getMethodName(),obj== null ? "null" : obj.toString()));
+                return obj;
+            }
+        });
+        return enhancer.create();
+
+    }
 
     public boolean isJsDebugPannelEnable() {
         return jsDebugPannelEnable;
