@@ -16,6 +16,12 @@ class LogEngine {
     public void logError(final String message) {
         Log.e(tag, message);
     }
+    public void logWarn(final String message) {
+        Log.e(tag, message);
+    }
+    public void logDebug(final String message) {
+        Log.e(tag, message);
+    }
 
     public void logSecurity(final String message) {
         Log.w(tag, message);

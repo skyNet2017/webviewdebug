@@ -3,6 +3,7 @@ package uk.co.alt236.webviewdebug;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.webkit.WebChromeClient;
 import android.webkit.WebViewClient;
 
 import java.lang.reflect.Method;
@@ -19,6 +20,37 @@ final class Validation {
     public boolean validate(
             final Class<? extends WebViewClient> wrappedClient,
             final Class<? extends DebugWebViewClient> debugClient) {
+
+        final List<Method> unimplementedMethods = new ArrayList<>();
+        final Method[] wrappedClientMethods = wrappedClient.getMethods();
+        Method candidate;
+
+        for (final Method method : wrappedClientMethods) {
+            if (!isIgnorable(method)) {
+                candidate = getMethod(debugClient, method);
+                if (candidate == null
+                        && (getMethod(Object.class, method) == null)) {
+                    unimplementedMethods.add(method);
+                }
+            }
+        }
+
+        if (unimplementedMethods.isEmpty()) {
+            Log.i(TAG, "All methods implemented :)");
+        } else {
+            Log.e(TAG, "-----------------------------");
+            for (final Method method : unimplementedMethods) {
+                Log.e(TAG, debugClient.getSimpleName() + " does not implement: " + method);
+            }
+            Log.e(TAG, "-----------------------------");
+        }
+
+        return unimplementedMethods.isEmpty();
+    }
+
+    public boolean validateChrome(
+            final Class<? extends WebChromeClient> wrappedClient,
+            final Class<? extends DebugWebChromeClient> debugClient) {
 
         final List<Method> unimplementedMethods = new ArrayList<>();
         final Method[] wrappedClientMethods = wrappedClient.getMethods();
