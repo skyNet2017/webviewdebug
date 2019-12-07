@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.InputEvent;
 import android.view.KeyEvent;
@@ -176,7 +177,8 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
                              String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
                                      "<script>eruda.init()</script>";
                              html = html.replace("<head>",str);
-                             retVal = new WebResourceResponse("text/html","utf-8",StreamUtil.getStrToStream(html));
+                             String charset = getCharset(html);
+                             retVal = new WebResourceResponse("text/html",charset,StreamUtil.getStrToStream(html,charset));
                              logger.shouldInterceptRequest(view, url, retVal);
                              return retVal;
                          }
@@ -197,7 +199,8 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
                              String str = "<head>" + "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
                                      "<script>eruda.init()</script>";
                              html = html.replace("<head>", str);
-                             retVal = new WebResourceResponse("text/html", "utf-8", StreamUtil.getStrToStream(html));
+                             String charset = getCharset(html);
+                             retVal = new WebResourceResponse("text/html", charset, StreamUtil.getStrToStream(html,charset));
                              logger.shouldInterceptRequest(view, url, retVal);
                              Log.d(BuildConfig.DEFAULT_LOG_TAG, "buildOkClient: html" + html);
                              return retVal;
@@ -214,59 +217,74 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
         return retVal;
     }
 
+    private String getCharset(String html) {
+        if(TextUtils.isEmpty(html)){
+            return "UTF-8";
+        }
+        if(html.contains("charset=gbk")){
+            return "gbk";
+        }
+        return "UTF-8";
+    }
+
     OkHttpClient okHttpClient;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
         WebResourceResponse retVal = client.shouldInterceptRequest(view, request);
-        if(request.isForMainFrame() && request.getUrl().toString().startsWith("http")){
-            if(retVal != null){
-                if(retVal.getStatusCode() == 200 && retVal.getMimeType().contains("text/html")){
-                    Log.d(BuildConfig.DEFAULT_LOG_TAG,"encoding:"+retVal.getEncoding());
-                    String html = StreamUtil.getStreamToStr(retVal.getData());
-                    if(html.contains("<head>") && !html.contains("eruda.init(")){
-                        String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
-                                "<script>eruda.init()</script>";
-                        html = html.replace("<head>",str);
-                        retVal = new WebResourceResponse("text/html","utf-8",StreamUtil.getStrToStream(html));
-                        logger.shouldInterceptRequest(view, request, retVal);
-                        return retVal;
-                    }
-                }
-            }else {
-                if(okHttpClient == null){
-                    okHttpClient = buildOkClient();
-                }
-                Map<String,String> headers = request.getRequestHeaders();
-                Request.Builder okRequest = new Request.Builder()
-                        .url(request.getUrl().toString());
-                if(!headers.isEmpty()){
-                    for (Map.Entry<String, String> entry :
-                            headers.entrySet()) {
-                        okRequest.addHeader(entry.getKey(), entry.getValue());
-                    }
-                }
-                if("GET".equals(request.getMethod())){
-                    okRequest.get();
-                    try {
-                        Response response =okHttpClient.newCall(okRequest.build()).execute();
-                        String html = response.body().string();
-                        if(html.contains("<head>")&& !html.contains("eruda.init(")){
+        if(jsDebugPannelEnable){
+            if(request.isForMainFrame() && request.getUrl().toString().startsWith("http")){
+                if(retVal != null){
+                    if(retVal.getStatusCode() == 200 && retVal.getMimeType().contains("text/html")){
+                        Log.d(BuildConfig.DEFAULT_LOG_TAG,"encoding:"+retVal.getEncoding());
+                        String html = StreamUtil.getStreamToStr(retVal.getData());
+                        if(html.contains("<head>") && !html.contains("eruda.init(")){
                             String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
                                     "<script>eruda.init()</script>";
                             html = html.replace("<head>",str);
-                            retVal = new WebResourceResponse("text/html","utf-8",StreamUtil.getStrToStream(html));
+                            String charset = getCharset(html);
+                            retVal = new WebResourceResponse("text/html",charset,StreamUtil.getStrToStream(html,charset));
                             logger.shouldInterceptRequest(view, request, retVal);
-                            Log.d(BuildConfig.DEFAULT_LOG_TAG,"buildOkClient: html"+html);
                             return retVal;
                         }
-                    } catch (Throwable e) {
-                        e.printStackTrace();
+                    }
+                }else {
+                    if(okHttpClient == null){
+                        okHttpClient = buildOkClient();
+                    }
+                    Map<String,String> headers = request.getRequestHeaders();
+                    Request.Builder okRequest = new Request.Builder()
+                            .url(request.getUrl().toString());
+                    if(!headers.isEmpty()){
+                        for (Map.Entry<String, String> entry :
+                                headers.entrySet()) {
+                            okRequest.addHeader(entry.getKey(), entry.getValue());
+                        }
+                    }
+                    if("GET".equals(request.getMethod())){
+                        okRequest.get();
+                        try {
+                            Response response =okHttpClient.newCall(okRequest.build()).execute();
+                            String html = response.body().string();
+                            if(html.contains("<head>")&& !html.contains("eruda.init(")){
+                                String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
+                                        "<script>eruda.init()</script>";
+                                html = html.replace("<head>",str);
+                                String charset = getCharset(html);
+                                retVal = new WebResourceResponse("text/html",charset,StreamUtil.getStrToStream(html,charset));
+                                logger.shouldInterceptRequest(view, request, retVal);
+                                Log.d(BuildConfig.DEFAULT_LOG_TAG,"buildOkClient: html"+html);
+                                return retVal;
+                            }
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
         }
+
         logger.shouldInterceptRequest(view, request, retVal);
         return retVal;
     }

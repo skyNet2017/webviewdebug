@@ -11,16 +11,21 @@ import java.io.InputStreamReader;
  * desription:
  */
 public class StreamUtil {
+
+    public static InputStream getStrToStream(String sInputString){
+        return getStrToStream(sInputString,"UTF-8");
+    }
+
     /**
      * 将一个字符串转化为输入流
      *
      * @param sInputString
      * @return
      */
-    public static InputStream getStrToStream(String sInputString) {
+    public static InputStream getStrToStream(String sInputString,String charset) {
         if (sInputString != null && !sInputString.trim().equals("")) {
             try {
-                ByteArrayInputStream tInputStringStream = new ByteArrayInputStream(sInputString.getBytes());
+                ByteArrayInputStream tInputStringStream = new ByteArrayInputStream(sInputString.getBytes(charset));
                 return tInputStringStream;
             } catch (Exception ex) {
                 ex.printStackTrace();
