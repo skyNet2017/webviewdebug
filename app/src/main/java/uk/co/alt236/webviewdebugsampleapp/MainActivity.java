@@ -37,13 +37,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void testWrap() {
-        try {
+        /*try {
             MethodTest methodTest = (MethodTest) DebugWebViewClient.wrapAClassByMethodProxy(this,MethodTest.class);
             methodTest.callPhone("15989369554");
             methodTest.callPhone2("15989369554",5);
         }catch (Throwable throwable){
             throwable.printStackTrace();
-        }
+        }*/
 
     }
 
