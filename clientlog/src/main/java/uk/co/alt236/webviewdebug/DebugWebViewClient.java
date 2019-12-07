@@ -22,13 +22,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.mdit.library.proxy.Enhancer;
-import com.mdit.library.proxy.MethodInterceptor;
-import com.mdit.library.proxy.MethodProxy;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Map;
 
