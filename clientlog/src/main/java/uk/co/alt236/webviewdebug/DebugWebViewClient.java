@@ -99,10 +99,15 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
     }
 
     private void validate() {
-        if (!new Validation().validate(client.getClass(), this.getClass())) {
+        try{
+            if (!new Validation().validate(client.getClass(), this.getClass())) {
             Log.e(DebugWebViewClient.class.getSimpleName(),
                     "invalid: the DebugClient does not override all methods overridden in the wrapped client");
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
+        
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
