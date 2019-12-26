@@ -42,9 +42,13 @@ public class DebugWebChromeClient extends WebChromeClient implements LogControl 
     }
 
     private void validate() {
-        if (!new Validation().validateChrome(client.getClass(), this.getClass())) {
+        try{
+            if (!new Validation().validateChrome(client.getClass(), this.getClass())) {
             Log.e(DebugWebChromeClient.class.getSimpleName(),
                     "invalid: the DebugClient does not override all methods overridden in the wrapped client");
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
