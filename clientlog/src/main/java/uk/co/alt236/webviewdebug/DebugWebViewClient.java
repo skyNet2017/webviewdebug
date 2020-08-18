@@ -5,6 +5,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -25,13 +27,20 @@ import android.webkit.WebViewClient;
 
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
+import okhttp3.CipherSuite;
+import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.TlsVersion;
 
 public class DebugWebViewClient extends WebViewClient implements LogControl {
+    //https://github.com/liriliri/eruda
+    private static final String CDN2 =  "<head>"+"<script src=\"https://cdn.jsdelivr.net/npm/eruda\"></script>" +
+            "<script>eruda.init();</script>";
     private final WebViewClient client;
     private final DebugWebViewClientLogger logger;
     private final OnUnhandledInputEventMethodProxy onUnhandledInputEventMethodProxy;
@@ -79,6 +88,7 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
 
     private boolean jsDebugPannelEnable;
     private String userAgent;
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     public DebugWebViewClient() {
         this(new WebViewClient());
@@ -167,21 +177,27 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
         client.onPageCommitVisible(view, url);
     }
 
+    volatile String mainUrl = "";
     @Override
     @Deprecated
-    public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+    public WebResourceResponse shouldInterceptRequest(final WebView view, String url) {
         //noinspection deprecation
          WebResourceResponse retVal = client.shouldInterceptRequest(view, url);
          if(jsDebugPannelEnable){
-             if(view.getUrl().equals(url) && url.startsWith("http")){
+             handler.post(new Runnable() {
+                 @Override
+                 public void run() {
+                     mainUrl = view.getUrl();
+                 }
+             });
+             Log.e("dd","mainUrl:"+mainUrl+", url:"+url);
+             if(url.startsWith("http") && !url.contains("eruda")){
                  if(retVal != null){
                      if(retVal.getData() != null && retVal.getMimeType().contains("text/html")){
                          Log.d(BuildConfig.DEFAULT_LOG_TAG,"encoding:"+retVal.getEncoding());
                          String html = StreamUtil.getStreamToStr(retVal.getData());
                          if(html.contains("<head>") && !html.contains("eruda.init(")){
-                             String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
-                                     "<script>eruda.init()</script>";
-                             html = html.replace("<head>",str);
+                             html = html.replace("<head>",CDN2);
                              String charset = getCharset(html);
                              retVal = new WebResourceResponse("text/html",charset,StreamUtil.getStrToStream(html,charset));
                              logger.shouldInterceptRequest(view, url, retVal);
@@ -201,9 +217,7 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
                          Response response = okHttpClient.newCall(okRequest.build()).execute();
                          String html = response.body().string();
                          if (html.contains("<head>") && !html.contains("eruda.init(")) {
-                             String str = "<head>" + "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
-                                     "<script>eruda.init()</script>";
-                             html = html.replace("<head>", str);
+                             html = html.replace("<head>",CDN2);
                              String charset = getCharset(html);
                              retVal = new WebResourceResponse("text/html", charset, StreamUtil.getStrToStream(html,charset));
                              logger.shouldInterceptRequest(view, url, retVal);
@@ -226,9 +240,9 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
         if(TextUtils.isEmpty(html)){
             return "UTF-8";
         }
-        if(html.contains("charset=gbk")){
+        /*if(html.contains("charset=gbk")){
             return "gbk";
-        }
+        }*/
         return "UTF-8";
     }
 
@@ -239,15 +253,13 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
         WebResourceResponse retVal = client.shouldInterceptRequest(view, request);
         if(jsDebugPannelEnable){
-            if(request.isForMainFrame() && request.getUrl().toString().startsWith("http")){
+            if(request.isForMainFrame() && request.getUrl().toString().startsWith("http") && !request.getUrl().toString().contains("eruda")){
                 if(retVal != null){
                     if(retVal.getStatusCode() == 200 && retVal.getMimeType().contains("text/html")){
                         Log.d(BuildConfig.DEFAULT_LOG_TAG,"encoding:"+retVal.getEncoding());
                         String html = StreamUtil.getStreamToStr(retVal.getData());
                         if(html.contains("<head>") && !html.contains("eruda.init(")){
-                            String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
-                                    "<script>eruda.init()</script>";
-                            html = html.replace("<head>",str);
+                            html = html.replace("<head>",CDN2);
                             String charset = getCharset(html);
                             retVal = new WebResourceResponse("text/html",charset,StreamUtil.getStrToStream(html,charset));
                             logger.shouldInterceptRequest(view, request, retVal);
@@ -273,9 +285,7 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
                             Response response =okHttpClient.newCall(okRequest.build()).execute();
                             String html = response.body().string();
                             if(html.contains("<head>")&& !html.contains("eruda.init(")){
-                                String str = "<head>"+"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/eruda/1.5.8/eruda.min.js\"></script>\n" +
-                                        "<script>eruda.init()</script>";
-                                html = html.replace("<head>",str);
+                                html = html.replace("<head>",CDN2);
                                 String charset = getCharset(html);
                                 retVal = new WebResourceResponse("text/html",charset,StreamUtil.getStrToStream(html,charset));
                                 logger.shouldInterceptRequest(view, request, retVal);
@@ -296,6 +306,15 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
 
     private OkHttpClient buildOkClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_1, TlsVersion.TLS_1_0,TlsVersion.TLS_1_3,TlsVersion.SSL_3_0)
+              /*  .cipherSuites(
+                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                        CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA)*/
+                .build();
+        builder.connectionSpecs(Collections.singletonList(spec));
         userAgent = System.getProperty("http.agent");
         return builder.build();
     }

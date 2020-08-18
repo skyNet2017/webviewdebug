@@ -24,14 +24,14 @@ public class MainActivity extends AppCompatActivity {
 
         final DebugWebViewClient debugWebViewClient = new DebugWebViewClient(new WebViewClient());
         debugWebViewClient.setLoggingEnabled(true);
-        debugWebViewClient.setJsDebugPannelEnable(true);
+        debugWebViewClient.setJsDebugPannelEnable(false);
         webView.setWebViewClient(debugWebViewClient);
 
         DebugWebChromeClient chromeClient = new DebugWebChromeClient(new WebChromeClient());
         chromeClient.setLoggingEnabled(true);
         webView.setWebChromeClient(chromeClient);
 
-        webView.loadUrl("https://www.baidu.com");
+        webView.loadUrl("https://github.com/");
 
         testWrap();
     }
