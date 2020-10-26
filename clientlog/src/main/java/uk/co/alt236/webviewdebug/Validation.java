@@ -11,7 +11,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-final class Validation {
+public final class Validation {
     private static final String TAG = BuildConfig.DEFAULT_LOG_TAG;
 
     // We need to validate that the DebugClient overrides all methods
@@ -19,7 +19,7 @@ final class Validation {
 
     public boolean validate(
             final Class<? extends WebViewClient> wrappedClient,
-            final Class<? extends DebugWebViewClient> debugClient) {
+            final Class<? extends WebViewClient> debugClient) {
 
         final List<Method> unimplementedMethods = new ArrayList<>();
         final Method[] wrappedClientMethods = wrappedClient.getMethods();
@@ -50,7 +50,7 @@ final class Validation {
 
     public boolean validateChrome(
             final Class<? extends WebChromeClient> wrappedClient,
-            final Class<? extends DebugWebChromeClient> debugClient) {
+            final Class<? extends WebChromeClient> debugClient) {
 
         final List<Method> unimplementedMethods = new ArrayList<>();
         final Method[] wrappedClientMethods = wrappedClient.getMethods();

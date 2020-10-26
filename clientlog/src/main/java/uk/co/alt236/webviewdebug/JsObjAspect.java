@@ -54,6 +54,7 @@ public class JsObjAspect {
 
     private void logEvent(String name, Bundle bundle) {
 
+        //数据上报用
     }
 
     static String getUrl() {

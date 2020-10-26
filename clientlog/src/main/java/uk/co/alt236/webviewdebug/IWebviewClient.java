@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.view.InputEvent;
 import android.view.KeyEvent;
@@ -20,162 +21,146 @@ import android.webkit.WebView;
 
 public interface IWebviewClient {
 
-    default boolean shouldOverrideUrlLoadingAll(WebView view, String newurl) {
-        return false;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    default void onReceivedError(final WebView view, final WebResourceRequest request, final WebResourceError error) {
-
-    }
-
-    default void onReceivedErrorAll(WebView view, int errorCode, String description,
-                            String failingUrl){}
-
-    default void onReceivedError(final WebView view, final int errorCode, final String description, final String failingUrl) {
-
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    default void onReceivedHttpError(final WebView view, final WebResourceRequest request, final WebResourceResponse errorResponse) {
-
-    }
-
     
-    default void onReceivedSslError(final WebView view, final SslErrorHandler handler, final SslError error) {
-
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    default boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-
-        return false;
-    }
-
-    
+    @Deprecated
     default boolean shouldOverrideUrlLoading(WebView view, String url) {
         return false;
     }
 
     
-    default void onLoadResource(WebView view, String url) {
-
-    }
-
-    @TargetApi(Build.VERSION_CODES.M)
-    default void onPageCommitVisible(WebView view, String url) {
-
-    }
-
-
-    
-    @Deprecated
-    default WebResourceResponse shouldInterceptRequest(final WebView view, String url) {
-        return null;
-    }
-
-
-
-
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    default WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-
-        return null;
+    default boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+        return false;
     }
 
 
 
     
-    @Deprecated
-    @SuppressWarnings("deprecation") //for use with older versions
-    default void onTooManyRedirects(WebView view, Message cancelMsg, Message continueMsg) {
-
-    }
-
-    
-    default void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
-
-    }
-
-    
-    default void onPageStarted(WebView view, String url, Bitmap facIcon) {
-
+    default void onPageStarted(WebView view, String url, Bitmap favicon) {
     }
 
     
     default void onPageFinished(WebView view, String url) {
+    }
+
+    
+    default void onLoadResource(WebView view, String url) {
+    }
+
+    
+    default void onPageCommitVisible(WebView view, String url) {
+    }
+
+    
+    @Deprecated
+    @Nullable
+    default WebResourceResponse shouldInterceptRequest(WebView view,
+                                                      String url) {
+        return null;
+    }
+
+    
+    @Nullable
+    default WebResourceResponse shouldInterceptRequest(WebView view,
+                                                      WebResourceRequest request) {
+        return null;
+    }
+
+    
+    @Deprecated
+    default void onTooManyRedirects(WebView view, Message cancelMsg,
+                                   Message continueMsg) {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+
+
+    
+    @Deprecated
+    default void onReceivedError(WebView view, int errorCode,
+                                String description, String failingUrl) {
+    }
+
+    
+    default void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+
+    }
+
+    
+    default void onReceivedHttpError(
+            WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+    }
+
+    
+    default void onFormResubmission(WebView view, Message dontResend,
+                                   Message resend) {
+
+    }
+
+    
+    default void doUpdateVisitedHistory(WebView view, String url,
+                                       boolean isReload) {
+    }
+
+    
+    default void onReceivedSslError(WebView view, SslErrorHandler handler,
+                                   SslError error) {
+
+    }
+
     
     default void onReceivedClientCertRequest(WebView view, ClientCertRequest request) {
 
     }
 
     
-    default void onFormResubmission(final WebView view, final Message dontResend, final Message resend) {
+    default void onReceivedHttpAuthRequest(WebView view,
+                                          HttpAuthHandler handler, String host, String realm) {
+
+    }
+
+    default void  onProceededAfterSslError(WebView view,android.net.http.SslError sslError){
+
+    }
+
+    default void onReceivedClientCertRequest(android.webkit.WebView webView,Object requestHandler,java.lang.String url){
+        //android.webkit.ClientCertRequestHandler
 
     }
 
     
-    default void doUpdateVisitedHistory(final WebView view, final String url, final boolean isReload) {
-
-    }
-
-    
-    default boolean shouldOverrideKeyEvent(final WebView view, final KeyEvent event) {
-
-        return false;
-    }
-
-    //this is a valid, method but it was fully removed from the SDK in API24
-    // it was added in API21.
-    //
-    @SuppressWarnings("unused")
-    default void onUnhandledInputEvent(final WebView view, final InputEvent event) {
-
-    }
-
-    
-    default void onUnhandledKeyEvent(final WebView view, final KeyEvent event) {
-
-    }
-
-    
-    default void onScaleChanged(final WebView view, final float oldScale, final float newScale) {
-
-    }
-
-    
-    default void onReceivedLoginRequest(final WebView view, final String realm, final String account, final String args) {
-
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    
-    default boolean onRenderProcessGone(final WebView view, final RenderProcessGoneDetail detail) {
-
-        return false;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O_MR1)
-    
-    default void onSafeBrowsingHit(final WebView view, final WebResourceRequest request, final int threatType, final SafeBrowsingResponse callback) {
-
-    }
-
-    
-
-
-    
-    default boolean isLogKeyEventsEnabled() {
+    default boolean shouldOverrideKeyEvent(WebView view, KeyEvent event) {
         return false;
     }
 
     
-    default void setLogKeyEventsEnabled(final boolean enabled) {
+    default void onUnhandledKeyEvent(WebView view, KeyEvent event) {
 
     }
+
+    default void onUnhandledInputEvent(WebView view,InputEvent inputEvent){
+
+    }
+
+
+
+    
+    default void onScaleChanged(WebView view, float oldScale, float newScale) {
+    }
+
+    
+    default void onReceivedLoginRequest(WebView view, String realm,
+                                       @Nullable String account, String args) {
+    }
+
+    
+    default boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+        return false;
+    }
+
+    
+    default void onSafeBrowsingHit(WebView view, WebResourceRequest request,
+                                  int threatType, SafeBrowsingResponse callback) {
+
+    }
+   
 }

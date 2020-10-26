@@ -88,12 +88,13 @@ public class DebugWebViewClientLogger implements LogControl {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void shouldOverrideUrlLoading(WebView view, WebResourceRequest request, boolean retVal) {
         if (loggingEnabled) {
             final Uri url = request.getUrl();
             final String method = request.getMethod();
-            final boolean redirect = request.isRedirect();
+             boolean redirect = false;
+
             final boolean mainframe = request.isForMainFrame();
             final boolean gesture = request.hasGesture();
 
@@ -171,7 +172,7 @@ public class DebugWebViewClientLogger implements LogControl {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    //@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void onReceivedClientCertRequest(WebView view, ClientCertRequest request) {
         if (loggingEnabled) {
             logger.logSecurity(String.format(LOCALE, "%s onReceivedClientCertRequest() %s", SPACE, StringUtils.toString(request)));

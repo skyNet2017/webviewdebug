@@ -1,6 +1,10 @@
+/*import org.aspectj.bridge.IMessage
+import org.aspectj.bridge.MessageHandler
+import org.aspectj.tools.ajc.Main*/
+
 apply plugin: 'com.android.application'
 apply from: "${project.rootDir}/buildsystem/dependency-versions.gradle"
-//apply plugin: 'android-aspectjx'
+
 
 android {
     compileSdkVersion compile_sdk_version
@@ -20,6 +24,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 /*aspectjx {
 //排除所有package路径中包含`android.support`的class文件及库（jar文件）
@@ -37,6 +45,15 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'me.weishu:epic:0.6.0'
+    //compile 'me.weishu:epic:0.6.0'
 
 }
+
+
+apply plugin: 'android-aspectjx'
+aspectjx {
+//排除所有package路径中包含`android.support`的class文件及库（jar文件）
+    exclude 'com.google','com.taobao'
+    enabled true
+}
+

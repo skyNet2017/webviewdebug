@@ -27,7 +27,7 @@ For as long as your app is does not need any of the listed, non-overridden, meth
 	}
 
 	dependencies {
-		compile 'com.github.skyNet2017:webviewdebug:1.1.1'
+		compile 'com.github.skyNet2017:webviewdebug:1.1.7'
 	}
 ```
 

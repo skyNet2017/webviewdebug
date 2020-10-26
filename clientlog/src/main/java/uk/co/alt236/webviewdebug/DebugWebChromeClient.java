@@ -43,7 +43,7 @@ public class DebugWebChromeClient extends WebChromeClient implements LogControl 
 
     private void validate() {
         try{
-            if (!new Validation().validateChrome(client.getClass(), this.getClass())) {
+            if (!new Validation().validateChrome(WebChromeClient.class, this.getClass())) {
             Log.e(DebugWebChromeClient.class.getSimpleName(),
                     "invalid: the DebugClient does not override all methods overridden in the wrapped client");
             }
@@ -301,6 +301,12 @@ public class DebugWebChromeClient extends WebChromeClient implements LogControl 
         boolean retVal = client.onShowFileChooser(webView,filePathCallback,fileChooserParams);
         logger.onShowFileChooser(webView,filePathCallback,fileChooserParams,retVal);
         return retVal;
+
+    }
+
+
+
+    public void openFileChooser(ValueCallback<Uri> uploadFile, String acceptType, String capture) {
 
     }
 
