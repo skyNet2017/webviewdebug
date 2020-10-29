@@ -25,7 +25,7 @@ public class AgentWebActivity extends AppCompatActivity {
 
         WebviewHolder holder = new WebviewHolder(this);
         holder.configLog(true,true);//配置logcat日志和view上日志
-        DebugWebViewClientLogger.logRequestOfNotMainFrame = true;
+        DebugWebViewClientLogger.logRequestOfNotMainFrame = false;
         holder.loadUrl(url3);
 
         setContentView(holder.root);
