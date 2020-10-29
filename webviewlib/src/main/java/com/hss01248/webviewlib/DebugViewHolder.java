@@ -15,6 +15,7 @@ import com.wuhenzhizao.titlebar.widget.CommonTitleBar;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.logging.Handler;
 
 import uk.co.alt236.webviewdebug.LogMethodAspect;
 
@@ -33,6 +34,7 @@ public class DebugViewHolder {
 
         mCommonTitleBar = titleBar;
         this.context = context;
+        setDebugLine();
 
     }
 
@@ -62,11 +64,17 @@ public class DebugViewHolder {
             debugView = new TextView(context);
             debugView.setTextColor(Color.BLUE);
             debugView.setId(R.id.tv_actual_payment_discount);
-            debugView.setPadding(15, (int) (20*context.getResources().getDisplayMetrics().density), 15, 15);
+            debugView.setPadding(20, (int) (20*context.getResources().getDisplayMetrics().density), 15, 15);
             debugView.setTextSize(11);
-            layout2.addView(debugView,
-                    new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT));
+            layout2.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    layout2.addView(debugView,
+                            new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.WRAP_CONTENT));
+                }
+            },2000);
+
             debugView.setText("init debugview");
             debugView.setOnClickListener(new View.OnClickListener() {
                 @Override

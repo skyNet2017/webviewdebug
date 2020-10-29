@@ -78,10 +78,6 @@ public class WebviewHolder {
         //debug辅助功能
         if (debugViewEnable) {
             debugViewHolder.agentWeb = agentWeb;
-            debugViewHolder.setDebugLine();
-        }
-        if (JsObjAspect.enableLog) {
-            ChuckJsObj.init(agentWeb.getWebCreator().getWebView());
         }
 
     }
