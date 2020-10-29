@@ -1,20 +1,37 @@
-# WEBVIEW DEBUG
+# webview logger
 [![Android Arsenal]( https://img.shields.io/badge/Android%20Arsenal-webviewdebug-green.svg?style=flat )]( https://android-arsenal.com/details/3/6436 )
 
 [![](https://jitpack.io/v/skyNet2017/webviewdebug.svg)](https://jitpack.io/#skyNet2017/webviewdebug)
 
+# Android上最详尽的webview和原生日志
+
+包括
+
+* webviewclient和webviewchromeclient的所有回调打印到logcat, 美化显示.   过滤tag: debugw   实现方式: 静态代理,每个回调均个性化定制
+* 所有@javaInterface交互调用均打印到logcat和js的console        aop实现,无侵入.开关配置在gradle脚本中,release可关
+* 所有webview原生调用js均打印到logcat和js的console                aop实现,无侵入.开关配置在gradle脚本中,release可关
+* 所有页面自动注入eruda.(移动端web开发最常用的调试面板之一)
+* 页首显示url,加载时长,点击可快速显示cookie
 
 
-Provides a logging wrapper around a WebViewClient,WebChromeClient, in order to figure out what is going on.
 
-This happens by creating a `DebugWebViewClient,DebugWebChromeClient` which logs events and passes them to an enclosed `WebViewClient`,WebChromeClient.
 
-## Warning
-The `DebugWebViewClient` is implementing all `WebViewClient` up to API 26. If your `WebViewClient` is implementing a method that the `DebugWebViewClient` does not, and that method is critical for your business logic, then your app will probably not work properly.
 
-When a `DebugWebViewClient` is initialised, it will print in log a list of all methods that are declared in the passed `WebViewClient` class and any parents and are NOT overridden.
+![image-20201029194236926](https://gitee.com/hss012489/picbed/raw/master/picgo/1603971756972-image-20201029194236926.jpg)
 
-For as long as your app is does not need any of the listed, non-overridden, methods, then there won't be a problem.
+![image-20201029194125715](https://gitee.com/hss012489/picbed/raw/master/picgo/1603971685767-image-20201029194125715.jpg)
+
+
+
+![image-20201029194422756](https://gitee.com/hss012489/picbed/raw/master/picgo/1603971862804-image-20201029194422756.jpg)
+
+![image-20201029194607064](https://gitee.com/hss012489/picbed/raw/master/picgo/1603971967114-image-20201029194607064.jpg)
+
+![image-20201029194537414](https://gitee.com/hss012489/picbed/raw/master/picgo/1603971937462-image-20201029194537414.jpg)
+
+![image-20201029194515119](https://gitee.com/hss012489/picbed/raw/master/picgo/1603971915166-image-20201029194515119.jpg)
+
+
 
 ## Getting the Library
 

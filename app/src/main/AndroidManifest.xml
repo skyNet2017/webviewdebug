@@ -10,9 +10,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:name=".BaseApp"
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
-        <activity android:name="uk.co.alt236.webviewdebugsampleapp.MainActivity">
+        <activity android:name="uk.co.alt236.webviewdebugsampleapp.AgentWebActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

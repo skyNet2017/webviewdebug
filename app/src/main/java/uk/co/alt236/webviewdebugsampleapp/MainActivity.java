@@ -11,6 +11,7 @@ import android.webkit.WebViewClient;
 import uk.co.alt236.webviewdebug.DebugWebChromeClient;
 import uk.co.alt236.webviewdebug.DebugWebViewClient;
 
+
 public class MainActivity extends AppCompatActivity {
 
      WebView webView;
@@ -19,21 +20,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
          webView = new WebView(getApplicationContext());
         initSettings(webView);
+        webView.addJavascriptInterface(new MyJsObj(),MyJsObj.TAG);
         setContentView(webView);
 
 
         final DebugWebViewClient debugWebViewClient = new DebugWebViewClient(new WebViewClient());
         debugWebViewClient.setLoggingEnabled(true);
-        debugWebViewClient.setJsDebugPannelEnable(true);
+        debugWebViewClient.setJsDebugPannelEnable(false);
         webView.setWebViewClient(debugWebViewClient);
 
         DebugWebChromeClient chromeClient = new DebugWebChromeClient(new WebChromeClient());
         chromeClient.setLoggingEnabled(true);
         webView.setWebChromeClient(chromeClient);
 
-        webView.loadUrl("https://www.baidu.com");
+        webView.loadUrl("https://www.baidu.com/");
 
         testWrap();
+
+        //测试实现方法
+        //new Validation().validate(WebViewClient.class, MyWebViewClient.class);
+        //new Validation().validateChrome(WebChromeClient.class, MyChromeClient.class);
     }
 
     private void testWrap() {

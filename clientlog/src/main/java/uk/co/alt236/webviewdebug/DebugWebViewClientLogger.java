@@ -34,6 +34,7 @@ public class DebugWebViewClientLogger implements LogControl {
     private final LogEngine logger;
     private boolean loggingEnabled;
     private boolean logKeyEventsEnabled;
+    public static boolean logRequestOfNotMainFrame;
 
     public DebugWebViewClientLogger() {
         this(DEFAULT_TAG);
@@ -88,14 +89,18 @@ public class DebugWebViewClientLogger implements LogControl {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void shouldOverrideUrlLoading(WebView view, WebResourceRequest request, boolean retVal) {
         if (loggingEnabled) {
             final Uri url = request.getUrl();
             final String method = request.getMethod();
-            final boolean redirect = request.isRedirect();
+             boolean redirect = false;
+
             final boolean mainframe = request.isForMainFrame();
             final boolean gesture = request.hasGesture();
+            if(!mainframe && !logRequestOfNotMainFrame){
+                return;
+            }
 
             logger.log(String.format(LOCALE, "%s shouldOverrideUrlLoading() 1/4 CALL       : %s %s", SPACE, method, url));
             logger.log(String.format(LOCALE, "%s shouldOverrideUrlLoading() 2/4 CALL INFO  : redirect=%s, forMainFrame=%s, hasGesture=%s", SPACE, redirect, mainframe, gesture));
@@ -112,7 +117,7 @@ public class DebugWebViewClientLogger implements LogControl {
     }
 
     public void onLoadResource(WebView view, String url) {
-        if (loggingEnabled) {
+        if (loggingEnabled && logRequestOfNotMainFrame) {
             logger.log(String.format(LOCALE, "%s onLoadResource() %s", SPACE, url));
         }
     }
@@ -140,7 +145,9 @@ public class DebugWebViewClientLogger implements LogControl {
             final Uri url = request.getUrl();
             final String method = request.getMethod();
             final String result = retVal == null ? "false" : StringUtils.toString(retVal);
-
+            if(!request.isForMainFrame() && !logRequestOfNotMainFrame){
+                return;
+            }
             logger.log(String.format(LOCALE, "%s shouldInterceptRequest() 1/3 CALL       : %s %s", SPACE, method, url));
             logger.log(String.format(LOCALE, "%s shouldInterceptRequest() 2/3 REQ HEADERS: %s", SPACE, request.getRequestHeaders()));
             logger.log(String.format(LOCALE, "%s shouldInterceptRequest() 3/3 INTERCEPT  : %s", SPACE, result));
@@ -171,7 +178,7 @@ public class DebugWebViewClientLogger implements LogControl {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    //@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void onReceivedClientCertRequest(WebView view, ClientCertRequest request) {
         if (loggingEnabled) {
             logger.logSecurity(String.format(LOCALE, "%s onReceivedClientCertRequest() %s", SPACE, StringUtils.toString(request)));

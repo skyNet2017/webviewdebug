@@ -1,6 +1,10 @@
+/*import org.aspectj.bridge.IMessage
+import org.aspectj.bridge.MessageHandler
+import org.aspectj.tools.ajc.Main*/
+
 apply plugin: 'com.android.application'
 apply from: "${project.rootDir}/buildsystem/dependency-versions.gradle"
-//apply plugin: 'android-aspectjx'
+
 
 android {
     compileSdkVersion compile_sdk_version
@@ -12,13 +16,19 @@ android {
         targetSdkVersion target_sdk_version
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 /*aspectjx {
@@ -28,7 +38,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(path: ':clientlog')
+    implementation project(path: ':webviewlib')
 
     implementation "com.android.support:appcompat-v7:$android_support_lib_version"
 
@@ -37,6 +47,18 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'me.weishu:epic:0.6.0'
-
+    //compile 'me.weishu:epic:0.6.0'
+    /*implementation 'com.just.agentweb:agentweb:4.1.4' // (必选)
+    implementation 'com.just.agentweb:filechooser:4.1.4'// (可选)
+    implementation 'com.download.library:Downloader:4.1.4'// (可选)
+    compile 'com.wuhenzhizao:titlebar:1.1.4'*/
 }
+
+
+apply plugin: 'android-aspectjx'
+aspectjx {
+//排除所有package路径中包含`android.support`的class文件及库（jar文件）
+    exclude 'com.google','com.taobao'
+    enabled true
+}
+

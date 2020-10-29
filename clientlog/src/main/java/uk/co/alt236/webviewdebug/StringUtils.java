@@ -11,15 +11,19 @@ import java.util.Arrays;
 @SuppressWarnings("WeakerAccess")
 public class StringUtils {
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+   // @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static String toString(final ClientCertRequest request) {
         if (request == null) {
             return "<NULL>";
         } else {
-            return request.getHost() + ":" + request.getPort() + " "
-                    + Arrays.toString(request.getKeyTypes())
-                    + " "
-                    + Arrays.toString(request.getPrincipals());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                return request.getHost() + ":" + request.getPort() + " "
+                        + Arrays.toString(request.getKeyTypes())
+                        + " "
+                        + Arrays.toString(request.getPrincipals());
+            }else {
+                return request.toString();
+            }
         }
     }
 

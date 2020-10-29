@@ -1,1 +1,2 @@
+include ':webviewlib'
 include ':app', ':clientlog'
