@@ -30,7 +30,7 @@ public class AgentWebCallBackLog {
                     Field field = entrace.getClass().getDeclaredField("mWebView");
                     field.setAccessible(true);
                     WebView webView = (WebView) field.get(entrace);
-                    DebugWebViewClient.logInJsConsole(webView, desc);
+                    DebugWebViewClient.logInJsConsole(webView, joinPoin.getArgs()[0]+"");
 
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
