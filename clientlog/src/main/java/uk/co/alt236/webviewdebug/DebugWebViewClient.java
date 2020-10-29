@@ -2,6 +2,8 @@ package uk.co.alt236.webviewdebug;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Build;
@@ -26,6 +28,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -46,49 +50,17 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
     private final OnUnhandledInputEventMethodProxy onUnhandledInputEventMethodProxy;
 
 
-    /*public static Object wrapAClassByMethodProxy(Context context,Class clazz){
-
-        Enhancer enhancer = new Enhancer(context.getApplicationContext());
-        enhancer.setSuperclass(clazz);
-        //目标对象拦截器，实现MethodInterceptor
-        //Object object为目标对象
-        //Method method为目标方法
-        //Object[] args 为参数，
-        //MethodProxy proxy CGlib方法代理对象
-        enhancer.setCallback(new MethodInterceptor() {
-            @Override
-            public Object intercept(Object object, Object[] args, MethodProxy proxy) throws Exception {
-                Object obj = null;
-                Log.d("MethodProxy", String.format("method name: %s, args: %s",proxy.getMethodName(),Arrays.toString(args)));
-                long startTime = System.nanoTime();
-                obj = proxy.invokeSuper(object, args);
-                long cost = System.nanoTime() - startTime;
-                if(cost > 1000000){
-                    Log.d("MethodProxy", String.format("method name: %s, time cost %sms, return value: %s",
-                            proxy.getMethodName(),cost/1000000,obj== null ? "null" : obj.toString()));
-                }else {
-                    Log.d("MethodProxy", String.format("method name: %s, time cost %sus, return value: %s",
-                            proxy.getMethodName(),cost/1000,obj== null ? "null" : obj.toString()));
-                }
-
-                return obj;
-            }
-        });
-        return enhancer.create();
-
-    }*/
-
-    public boolean isJsDebugPannelEnable() {
+    public static boolean isJsDebugPannelEnable() {
         return jsDebugPannelEnable;
     }
 
-    public void setJsDebugPannelEnable(boolean jsDebugPannelEnable) {
-        this.jsDebugPannelEnable = jsDebugPannelEnable;
+
+    public static void setJsDebugPannelEnable(boolean jsDebugPannelEnable) {
+        DebugWebViewClient.jsDebugPannelEnable = jsDebugPannelEnable;
     }
 
-    private boolean jsDebugPannelEnable;
-    private String userAgent;
-    private Handler handler = new Handler(Looper.getMainLooper());
+    static boolean jsDebugPannelEnable;
+
 
     public DebugWebViewClient() {
         this(new WebViewClient());
@@ -180,146 +152,48 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
         client.onPageCommitVisible(view, url);
     }
 
-    volatile String mainUrl = "";
+
     @Override
     @Deprecated
     public WebResourceResponse shouldInterceptRequest(final WebView view, String url) {
         //noinspection deprecation
          WebResourceResponse retVal = client.shouldInterceptRequest(view, url);
-         if(jsDebugPannelEnable){
-             handler.post(new Runnable() {
-                 @Override
-                 public void run() {
-                     mainUrl = view.getUrl();
-                 }
-             });
-             Log.e("dd","mainUrl:"+mainUrl+", url:"+url);
-             if(url.startsWith("http") && !url.contains("eruda")){
-                 if(retVal != null){
-                     if(retVal.getData() != null && retVal.getMimeType().contains("text/html")){
-                         Log.d(BuildConfig.DEFAULT_LOG_TAG,"encoding:"+retVal.getEncoding());
-                         String html = StreamUtil.getStreamToStr(retVal.getData());
-                         if(html.contains("<head>") && !html.contains("eruda.init(")){
-                             html = html.replace("<head>",CDN2);
-                             String charset = getCharset(html);
-                             retVal = new WebResourceResponse("text/html",charset,StreamUtil.getStrToStream(html,charset));
-                             logger.shouldInterceptRequest(view, url, retVal);
-                             return retVal;
-                         }
-                     }
-                 }else {
-                     if (okHttpClient == null) {
-                         okHttpClient = buildOkClient();
-                     }
-
-                     Request.Builder okRequest = new Request.Builder()
-                             .addHeader("User-Agent",userAgent)
-                             .url(url);
-                     okRequest.get();
-                     try {
-                         Response response = okHttpClient.newCall(okRequest.build()).execute();
-                         String html = response.body().string();
-                         if (html.contains("<head>") && !html.contains("eruda.init(")) {
-                             html = html.replace("<head>",CDN2);
-                             String charset = getCharset(html);
-                             retVal = new WebResourceResponse("text/html", charset, StreamUtil.getStrToStream(html,charset));
-                             logger.shouldInterceptRequest(view, url, retVal);
-                             Log.d(BuildConfig.DEFAULT_LOG_TAG, "buildOkClient: html" + html);
-                             return retVal;
-                         }
-                     } catch (Throwable e) {
-                         e.printStackTrace();
-                     }
-                 }
-             }
-         }
-
-
         logger.shouldInterceptRequest(view, url, retVal);
+        if(isJsDebugPannelEnable()){
+            if(url.contains("cdn.jsdelivr.net/npm/eruda")){
+                return loadErudaFromAssert(view.getResources());
+            }
+        }
         return retVal;
     }
 
-    private String getCharset(String html) {
-        if(TextUtils.isEmpty(html)){
-            return "UTF-8";
-        }
-        /*if(html.contains("charset=gbk")){
-            return "gbk";
+    private WebResourceResponse loadErudaFromAssert(Resources resources) {
+        /*try {
+            AssetManager am = resources.getAssets();
+            InputStream inputStream = am.open("eruda.js");
+            if (inputStream != null) {
+                WebResourceResponse  response = new WebResourceResponse("application/octet-stream", "UTF-8", inputStream);
+                Log.d("DebugWVClient","load eruda from assets");
+                return response;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }*/
-        return "UTF-8";
+        return null;
     }
 
-    OkHttpClient okHttpClient;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
         WebResourceResponse retVal = client.shouldInterceptRequest(view, request);
-        if(jsDebugPannelEnable){
-            if(request.isForMainFrame() && request.getUrl().toString().startsWith("http") && !request.getUrl().toString().contains("eruda")){
-                if(retVal != null){
-                    if(retVal.getStatusCode() == 200 && retVal.getMimeType().contains("text/html")){
-                        Log.d(BuildConfig.DEFAULT_LOG_TAG,"encoding:"+retVal.getEncoding());
-                        String html = StreamUtil.getStreamToStr(retVal.getData());
-                        if(html.contains("<head>") && !html.contains("eruda.init(")){
-                            html = html.replace("<head>",CDN2);
-                            String charset = getCharset(html);
-                            retVal = new WebResourceResponse("text/html",charset,StreamUtil.getStrToStream(html,charset));
-                            logger.shouldInterceptRequest(view, request, retVal);
-                            return retVal;
-                        }
-                    }
-                }else {
-                    if(okHttpClient == null){
-                        okHttpClient = buildOkClient();
-                    }
-                    Map<String,String> headers = request.getRequestHeaders();
-                    Request.Builder okRequest = new Request.Builder()
-                            .url(request.getUrl().toString());
-                    if(!headers.isEmpty()){
-                        for (Map.Entry<String, String> entry :
-                                headers.entrySet()) {
-                            okRequest.addHeader(entry.getKey(), entry.getValue());
-                        }
-                    }
-                    if("GET".equals(request.getMethod())){
-                        okRequest.get();
-                        try {
-                            Response response =okHttpClient.newCall(okRequest.build()).execute();
-                            String html = response.body().string();
-                            if(html.contains("<head>")&& !html.contains("eruda.init(")){
-                                html = html.replace("<head>",CDN2);
-                                String charset = getCharset(html);
-                                retVal = new WebResourceResponse("text/html",charset,StreamUtil.getStrToStream(html,charset));
-                                logger.shouldInterceptRequest(view, request, retVal);
-                                Log.d(BuildConfig.DEFAULT_LOG_TAG,"buildOkClient: html"+html);
-                                return retVal;
-                            }
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
+        logger.shouldInterceptRequest(view, request, retVal);
+        if(isJsDebugPannelEnable()){
+            if(request.getUrl().toString().contains("cdn.jsdelivr.net/npm/eruda")){
+                return loadErudaFromAssert(view.getResources());
             }
         }
-
-        logger.shouldInterceptRequest(view, request, retVal);
         return retVal;
-    }
-
-    private OkHttpClient buildOkClient() {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-                .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_1, TlsVersion.TLS_1_0,TlsVersion.TLS_1_3,TlsVersion.SSL_3_0)
-              /*  .cipherSuites(
-                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-                        CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
-                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA)*/
-                .build();
-        builder.connectionSpecs(Collections.singletonList(spec));
-        userAgent = System.getProperty("http.agent");
-        return builder.build();
     }
 
     @Override
@@ -341,12 +215,44 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
     public void onPageStarted(WebView view, String url, Bitmap facIcon) {
         logger.onPageStarted(view, url, facIcon);
         client.onPageStarted(view, url, facIcon);
+        hasAppendJsDebugPan = false;
     }
-
+    volatile boolean hasAppendJsDebugPan = false;
     @Override
     public void onPageFinished(WebView view, String url) {
         logger.onPageFinished(view, url);
         client.onPageFinished(view, url);
+        if(jsDebugPannelEnable){
+            if(!hasAppendJsDebugPan){
+                hasAppendJsDebugPan = true;
+                invokeJsDebugPan(view);
+            }
+        }
+
+
+    }
+    static String fuc3 = "(function () { var script = document.createElement('script'); " +
+            "script.src=\"https://cdn.jsdelivr.net/npm/eruda\"; " +
+            "document.body.appendChild(script); " +
+            "script.onload = function () { eruda.init() } })();";
+    static String fuc4 = "var script = document.createElement('script'); " +
+            "script.src=\"https://cdn.jsdelivr.net/npm/eruda\"; " +
+            "script.onload = function () { eruda.init() } "+
+            "document.body.appendChild(script); " ;
+    // "script.onload = function () { eruda.init() } ";
+
+    /*<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+        <script>eruda.init();</script>*/
+
+    public static void invokeJsDebugPan(WebView webView){
+        webView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                String js = "javascript:"+fuc3;
+                Log.w("js",js);
+                webView.loadUrl(js);
+            }
+        },0);
     }
 
     //@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

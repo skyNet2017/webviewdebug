@@ -34,7 +34,7 @@ public class AgentWebClientAspect {
                 WebViewClient webViewClient = (WebViewClient)args[1];
                 DebugWebViewClient  debugWebViewClient = new DebugWebViewClient(webViewClient);
                 debugWebViewClient.setLoggingEnabled(enableLog);
-                debugWebViewClient.setJsDebugPannelEnable(false);
+                debugWebViewClient.setJsDebugPannelEnable(enableLog);
                 args[1] = debugWebViewClient;
                return joinPoin.proceed(args);
 

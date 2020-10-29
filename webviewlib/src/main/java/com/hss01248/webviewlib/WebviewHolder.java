@@ -11,6 +11,10 @@ import android.widget.LinearLayout;
 import com.just.agentweb.AgentWeb;
 import com.just.agentweb.WebChromeClient;
 import com.wuhenzhizao.titlebar.widget.CommonTitleBar;
+
+import uk.co.alt236.webviewdebug.DebugWebChromeClient;
+import uk.co.alt236.webviewdebug.DebugWebChromeClientLogger;
+import uk.co.alt236.webviewdebug.DebugWebViewClient;
 import uk.co.alt236.webviewdebug.JsObjAspect;
 
 public class WebviewHolder {
@@ -32,6 +36,7 @@ public class WebviewHolder {
         }
         JsObjAspect.enableLog = enableLog;
         this.debugViewEnable = debugViewEnable;
+        DebugWebViewClient.setJsDebugPannelEnable(enableLog);
         //DebugWebViewClientLogger.logRequestOfNotMainFrame = false;
     }
 
@@ -48,7 +53,7 @@ public class WebviewHolder {
 
 
     }
-    boolean appendJsDebugPan = false;
+
     public void loadUrl(String url) {
         if (debugViewEnable) {
             debugViewHolder = new DebugViewHolder(activity, titleBar);
@@ -63,27 +68,9 @@ public class WebviewHolder {
                         super.onReceivedTitle(view, title);
                         titleBar.getLeftTextView().setText(title);
                     }
-
-                    @Override
-                    public void onProgressChanged(WebView view, int newProgress) {
-                        super.onProgressChanged(view, newProgress);
-                        if(JsObjAspect.enableLog){
-                            if(newProgress > 10 && !appendJsDebugPan){
-                                appendJsDebugPan = true;
-                                ChuckJsObj.invokeJsDebugPan(view);
-                            }
-                        }
-                    }
                 });
         if (debugViewEnable) {
-            builder.setWebViewClient(new DebugViewClient(debugViewHolder){
-                @Override
-                public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                    super.onPageStarted(view, url, favicon);
-                    appendJsDebugPan = false;
-
-                }
-            });
+            builder.setWebViewClient(new DebugViewClient(debugViewHolder));
         }
         agentWeb = builder.createAgentWeb()
                 .ready().go(url);
