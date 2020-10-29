@@ -3,6 +3,7 @@ package uk.co.alt236.webviewdebug;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 
@@ -18,7 +19,7 @@ import java.net.URL;
 @Aspect
 public class JsObjAspect {
 
-    public static final String TAG = "jsLog";
+    public static final String TAG = "jsBridgeLog";
    public static boolean enableLog = false;
 
     @Around("@annotation(android.webkit.JavascriptInterface)")
@@ -36,7 +37,11 @@ public class JsObjAspect {
                 String url = getUrl();
                 String path = "";
                 try {
-                    path =  new URL(url).getPath();
+                    if(!TextUtils.isEmpty(url)){
+                        path =  new URL(url).getPath();
+                    }else {
+                        path = "url empty";
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

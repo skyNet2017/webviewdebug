@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:titlebar="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:id="@+id/ll_web"
+    android:layout_height="match_parent">
+    <com.wuhenzhizao.titlebar.widget.CommonTitleBar
+        android:id="@+id/ll_web_titlebar"
+        titlebar:leftType="textView"
+        titlebar:leftDrawablePadding="5dp"
+        titlebar:leftDrawable="@drawable/comm_titlebar_back_normal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
