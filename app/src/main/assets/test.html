@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+    <style>
+        button {
+            width: 400px;
+            height: 150px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+    <script>
+
+        function xlog(data) {
+            //console.log(data)
+            alert(JSON.stringify(data))
+        }
+
+        function commoncallback(data) {
+            xlog(data);
+        }
+
+
+        function statusBarStyle() {
+            MyJsObj.statusBarStyle('我是参数')
+        }
+
+        function address(s, newAddressId) {
+            MyJsObj.address(s,newAddressId)
+        }
+
+    </script>
+</head>
+<body>
+<div style="padding: 20px">
+    <button onclick="statusBarStyle()">statusBarStyle</button>
+    <br>
+    <button onclick="address('82446','commoncallback')">address</button>
+    <br>
+    <a href="http://www.jd.com">京东</a>
+
+</div>
+
+
+</body>
+</html>

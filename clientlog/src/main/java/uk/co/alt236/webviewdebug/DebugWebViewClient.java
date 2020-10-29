@@ -255,6 +255,17 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
         },0);
     }
 
+    public static void logInJsConsole(WebView webView,String str){
+        webView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                String js = "javascript:console.log('"+str+"')";
+                Log.w("js",js);
+                webView.loadUrl(js);
+            }
+        },0);
+    }
+
     //@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onReceivedClientCertRequest(WebView view, ClientCertRequest request) {

@@ -27,6 +27,15 @@ public class JsObjAspect {
         return LogMethodAspect.logAround(enableLog, TAG,false, joinPoint, new LogMethodAspect.IAround() {
             @Override
             public void before(ProceedingJoinPoint joinPoin,String desc) {
+               Object obj = joinPoin.getThis();
+               if(obj instanceof BaseJsObj){
+                   BaseJsObj baseJsObj = (BaseJsObj) obj;
+                   DebugWebViewClient.logInJsConsole(baseJsObj.getWebView(),desc);
+               }
+
+
+
+
                 String name = "z_" + joinPoin.getSignature().toShortString()
                         .replace("(..)","")
                         .replace("()","")

@@ -18,6 +18,7 @@ public class AgentWebActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         String url2 = "http://www.jd.com";
+        String url3 = "file:///android_asset/test.html";
 
         MyJsObj jsObj = new MyJsObj();
 
@@ -25,7 +26,7 @@ public class AgentWebActivity extends AppCompatActivity {
         WebviewHolder holder = new WebviewHolder(this);
         holder.configLog(true,true);//配置logcat日志和view上日志
         DebugWebViewClientLogger.logRequestOfNotMainFrame = true;
-        holder.loadUrl(url2);
+        holder.loadUrl(url3);
 
         setContentView(holder.root);
 

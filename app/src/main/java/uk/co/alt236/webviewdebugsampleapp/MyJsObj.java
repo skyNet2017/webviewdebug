@@ -4,10 +4,10 @@ package uk.co.alt236.webviewdebugsampleapp;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
-import com.hss01248.webviewlib.BaseJsObj;
+import com.hss01248.webviewlib.BaseAgentJsObj;
 
 
-public class MyJsObj extends BaseJsObj {
+public class MyJsObj extends BaseAgentJsObj {
 
     public static final String TAG = "MyJsObj";
 
