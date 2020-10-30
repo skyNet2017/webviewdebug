@@ -1,33 +1,18 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
-apply from: "${project.rootDir}/buildsystem/dependency-versions.gradle"
 
-final int versionMajor = 1
-final int versionMinor = 0
-final int versionPatch = 0
 
-final String gitHubRepo = 'alt236/webviewdebug'
-final String artifactName = 'webviewdebug'
-final String artifactDesc = 'Provides a custom WebViewClient which will log info each time one of its methods is called'
-final String[] tags = ['webview', 'webviewclient', 'android']
 
-final String artifactGroupId = 'uk.co.alt236'
-final String semanticVersion = "${versionMajor}.${versionMinor}.${versionPatch}"
-final String gitHubUrl = "https://github.com/${gitHubRepo}"
 
 android {
-    compileSdkVersion compile_sdk_version
-    buildToolsVersion build_tools_version
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
 
     defaultConfig {
-        minSdkVersion min_sdk_version
-        targetSdkVersion target_sdk_version
-
+        minSdkVersion 16
+        targetSdkVersion 30
         versionCode 1
-        versionName semanticVersion
+        versionName "1.0"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String", "DEFAULT_LOG_TAG", "\"DebugWVClient\""
     }
@@ -50,11 +35,8 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    compileOnly "com.android.support:support-annotations:$android_support_lib_version"
-    testImplementation "junit:junit:$junit_version"
+    compileOnly "com.android.support:support-annotations:28.0.0"
 
-    testImplementation "org.robolectric:robolectric:3.5.1"
-    testImplementation "org.mockito:mockito-core:2.18.0"
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
     api 'org.aspectj:aspectjrt:1.9.0'
     api 'com.android.support:appcompat-v7:28.0.0'
