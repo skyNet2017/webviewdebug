@@ -28,7 +28,7 @@ public class DebugWebChromeClientLogger implements LogControl {
     private static final String IN = "--->";
     private static final String OUT = "<---";
     private static final String SPACE = "    ";
-    private static final String DEFAULT_TAG = "DebugWVClient-chrome";
+    public static final String DEFAULT_TAG = "DebugWVClient-chrome";
 
     private final LogEngine logger;
     private boolean loggingEnabled;

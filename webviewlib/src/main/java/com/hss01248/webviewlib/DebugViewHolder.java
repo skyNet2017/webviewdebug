@@ -11,13 +11,11 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.just.agentweb.AgentWeb;
-import com.wuhenzhizao.titlebar.widget.CommonTitleBar;
 
-import java.io.UnsupportedEncodingException;
+
+
 import java.net.URLDecoder;
-import java.util.logging.Handler;
 
-import uk.co.alt236.webviewdebug.LogMethodAspect;
 
 public class DebugViewHolder {
 
@@ -26,11 +24,11 @@ public class DebugViewHolder {
     boolean showCookie;
 
     boolean enableUrlLine = true;
-    CommonTitleBar mCommonTitleBar;
+    ITitleBar mCommonTitleBar;
     Activity context;
     AgentWeb agentWeb;
 
-    public DebugViewHolder(Activity context, CommonTitleBar titleBar) {
+    public DebugViewHolder(Activity context, ITitleBar titleBar) {
 
         mCommonTitleBar = titleBar;
         this.context = context;

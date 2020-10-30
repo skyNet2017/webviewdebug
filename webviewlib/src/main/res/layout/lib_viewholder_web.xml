@@ -4,10 +4,10 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:id="@+id/ll_web"
     android:layout_height="match_parent">
-    <com.wuhenzhizao.titlebar.widget.CommonTitleBar
+    <com.hss01248.webviewlib.TitlebarImpl
         android:id="@+id/ll_web_titlebar"
-        titlebar:leftType="textView"
-        titlebar:leftDrawablePadding="5dp"
+        titlebar:leftType="imageButton"
+        titlebar:centerType="textView"
         titlebar:leftDrawable="@drawable/comm_titlebar_back_normal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>

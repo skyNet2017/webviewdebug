@@ -29,7 +29,7 @@ public class DebugWebViewClientLogger implements LogControl {
     private static final String IN = "--->";
     private static final String OUT = "<---";
     private static final String SPACE = "    ";
-    private static final String DEFAULT_TAG = BuildConfig.DEFAULT_LOG_TAG;
+    public static final String DEFAULT_TAG = BuildConfig.DEFAULT_LOG_TAG;
 
     private final LogEngine logger;
     private boolean loggingEnabled;
@@ -98,9 +98,9 @@ public class DebugWebViewClientLogger implements LogControl {
 
             final boolean mainframe = request.isForMainFrame();
             final boolean gesture = request.hasGesture();
-            if(!mainframe && !logRequestOfNotMainFrame){
+            /*if(!mainframe && !logRequestOfNotMainFrame){
                 return;
-            }
+            }*/
 
             logger.log(String.format(LOCALE, "%s shouldOverrideUrlLoading() 1/4 CALL       : %s %s", SPACE, method, url));
             logger.log(String.format(LOCALE, "%s shouldOverrideUrlLoading() 2/4 CALL INFO  : redirect=%s, forMainFrame=%s, hasGesture=%s", SPACE, redirect, mainframe, gesture));

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
@@ -14,13 +15,33 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 
+import com.just.agentweb.MiddlewareWebClientBase;
 import com.just.agentweb.WebViewClient;
 
 import java.util.List;
 
-public class WrappedWebviewClient extends WebViewClient {
+import uk.co.alt236.webviewdebug.DebugWebViewClient;
+import uk.co.alt236.webviewdebug.DebugWebViewClientLogger;
 
+public class WrappedWebviewClient extends MiddlewareWebClientBase {
 
+    public String getCurrentUrl() {
+        return currentUrl;
+    }
+
+    protected String currentUrl;
+
+    public void setWebErrorView(IWebErrorView webErrorView) {
+        this.webErrorView = webErrorView;
+    }
+
+    protected IWebErrorView webErrorView;
+
+    @Override
+    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        super.onPageStarted(view, url, favicon);
+        currentUrl = url;
+    }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -59,6 +80,9 @@ public class WrappedWebviewClient extends WebViewClient {
     public void onReceivedErrorAll(WebView view, int errorCode, String description,
                                    String failingUrl) {
         Log.w("WrappedWebviewClient","onReceivedError : errorcode:" + errorCode + "--desc:" + description + "--failingurl:" + failingUrl);
+        if(webErrorView != null){
+            webErrorView.setErrorMsg(failingUrl,errorCode,description);
+        }
     }
 
 
@@ -74,6 +98,13 @@ public class WrappedWebviewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
         if(request.isForMainFrame()){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                if(request.isRedirect()){
+                    //发生重定向
+                    currentUrl = request.getUrl().toString();
+                    Log.d(DebugWebViewClientLogger.DEFAULT_TAG,"301 --> request.isRedirect:"+currentUrl);
+                }
+            }
             return this.shouldOverrideUrlLoading(view, request.getUrl().toString());
         }else {
             return super.shouldOverrideUrlLoading(view,request);
@@ -95,7 +126,7 @@ public class WrappedWebviewClient extends WebViewClient {
                 RouterUtil.navigation(ActivityStackManager.getInstance().getTopActivity(), newurl);
                 return true;
             }*/
-            //处理intent协议
+            //处理intent协议: 在agentweb内部已经处理了
             if (newurl.startsWith("intent://")) {
                 Intent intent;
                 try {
@@ -105,10 +136,15 @@ public class WrappedWebviewClient extends WebViewClient {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
                         intent.setSelector(null);
                     }
+                    //单独开任务栈,防止黑屏
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                            | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     List<ResolveInfo> resolves = view.getContext().getPackageManager().queryIntentActivities(intent, 0);
                     if (resolves.size() > 0) {
                         ((Activity) view.getContext()).startActivityIfNeeded(intent, -1);
                         return true;
+                    }else {
+                        //定制: 直接跳商店
                     }
 
                 } catch (Exception e) {
