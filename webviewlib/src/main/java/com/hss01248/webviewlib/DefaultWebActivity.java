@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.webkit.WebView;
 
 import com.just.agentweb.AgentWeb;
 
@@ -21,14 +22,25 @@ public class DefaultWebActivity extends AppCompatActivity {
         intent.putExtra(KEY_URL,url);
         activity.startActivity(intent);
     }
+
+    boolean contentSet;
+    public void setContent(View view1) {
+        setContentView(view1);
+        contentSet = true;
+    }
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(contentSet){
+            //已经设置过contentview了,就不需要再设置了
+            return;
+        }
          holder = new WebviewHolder(this);
 
          //配置
         holder.configLog(WebViewLib.enableLog,WebViewLib.enableLog);//配置logcat日志和view上日志
         DebugWebViewClientLogger.logRequestOfNotMainFrame = false;
+
         //一些自定义功能
         holder.setWebErrorView(configWebErrorView());
         holder.setWebConfig(configWebAgent());
@@ -73,4 +85,6 @@ public class DefaultWebActivity extends AppCompatActivity {
         super.onDestroy();
         agentWeb.getWebLifeCycle().onDestroy();
     }
+
+
 }

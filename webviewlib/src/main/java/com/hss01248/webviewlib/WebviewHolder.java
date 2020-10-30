@@ -1,8 +1,10 @@
 package com.hss01248.webviewlib;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +47,7 @@ public class WebviewHolder {
     }
 
     IWebConfig webConfig;
-
+    JsWindowOpenImpl2 impl2;
 
 
     public void configLog(boolean enableLog, boolean debugViewEnable) {
@@ -130,6 +132,13 @@ public class WebviewHolder {
                 }
             }
         });
+         impl2 = new JsWindowOpenImpl2(new IWebViewInit() {
+            @Override
+            public JsWindowOpenImpl2 getImpl() {
+                return impl2;
+            }
+        });
+        builder.useMiddlewareWebChrome(impl2);
         builder.useMiddlewareWebClient(new WrappedWebviewClient());
         if (debugViewEnable) {
             builder.useMiddlewareWebClient( new DebugViewClient(debugViewHolder));
@@ -157,8 +166,14 @@ public class WebviewHolder {
             webConfig.config(builder);
         }
 
-        agentWeb = builder.createAgentWeb()
-                .ready().go(url);
+        if(TextUtils.isEmpty(url)){
+            agentWeb = builder.createAgentWeb()
+                    .ready().get();
+        }else {
+            agentWeb = builder.createAgentWeb()
+                    .ready().go(url);
+        }
+
 
         //debug辅助功能
         if (debugViewEnable) {

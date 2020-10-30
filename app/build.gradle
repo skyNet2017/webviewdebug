@@ -55,10 +55,10 @@ dependencies {
 }
 
 
-/*apply plugin: 'android-aspectjx'
+apply plugin: 'android-aspectjx'
 aspectjx {
 //排除所有package路径中包含`android.support`的class文件及库（jar文件）
     exclude 'com.google','com.taobao'
     enabled true
-}*/
+}
 

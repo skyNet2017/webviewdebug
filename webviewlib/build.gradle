@@ -40,4 +40,5 @@ dependencies {
     api 'com.just.agentweb:filechooser:4.1.4'// (可选)
     api 'com.download.library:Downloader:4.1.4'// (可选)
     implementation 'com.wuhenzhizao:titlebar:1.1.4'
+    api 'com.github.hss01248.StartActivityResult:activityresult:1.0.3-support'
 }
