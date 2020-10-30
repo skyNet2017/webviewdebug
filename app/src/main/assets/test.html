@@ -8,6 +8,14 @@
             width: 200px;
             height: 50px;
         }
+        body{
+        display:flex;
+        flex-wrap: wrap;
+        }
+        a{
+            padding: 20px;
+            font-size: large;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
     <script>eruda.init();</script>
@@ -30,19 +38,32 @@
         function address(s, newAddressId) {
             MyJsObj.address(s,newAddressId)
         }
+        var win;
+        function openNew() {
+            win = window.open("https://www.jd.com");
+            setTimeout(function () {
+                win.close();
+            },3000)
+        }
+        function closeWin() {
+            window.close();
+        }
 
     </script>
 </head>
 <body>
 <div style="padding: 20px">
     <button onclick="statusBarStyle()">statusBarStyle</button>
-    <br>
+
     <button onclick="address('82446','commoncallback')">address</button>
-    <br>
+
     <a href="http://www.jd.com">京东</a>
-    <br>
-    <br>
-    <a  style="font-size: xx-large" href="https://www.baidu.com?__statusBarStyle=white" target="_blank">url控制->新页面状态栏文字颜色变白色(window open)</a>
+
+    <a   href="https://www.baidu.com?__statusBarStyle=white" target="_blank">(window open-target_blank)</a>
+
+    <button onclick="openNew()">windo.open京东,3s后自动关闭</button>
+
+    <button onclick="closeWin()">windo.close关闭自己</button>
 
 </div>
 
