@@ -18,7 +18,7 @@ public class WebviewClientCallbackAspect {
    static final String client= "execution(* android.webkit.WebViewClient+.*(..))";
     static final String chromeClient= "execution(* android.webkit.WebChromeClient+.*(..))";
 
-    @Around(client +" || "+chromeClient)
+    //@Around(client +" || "+chromeClient)
     public Object addLog(ProceedingJoinPoint joinPoint) throws Throwable{
         return LogMethodAspect.logAround(enableLog, TAG,true, joinPoint, new LogMethodAspect.IAround() {
 
