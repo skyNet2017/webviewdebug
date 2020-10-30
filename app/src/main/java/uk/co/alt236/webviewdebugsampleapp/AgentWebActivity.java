@@ -1,64 +1,53 @@
 package uk.co.alt236.webviewdebugsampleapp;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.TextView;
 
+import com.hss01248.webviewlib.DefaultWebActivity;
+import com.hss01248.webviewlib.IWebErrorView;
 import com.hss01248.webviewlib.WebviewHolder;
 import com.just.agentweb.AgentWeb;
 
 import uk.co.alt236.webviewdebug.DebugWebViewClientLogger;
 
 
-public class AgentWebActivity extends AppCompatActivity {
+public class AgentWebActivity extends DefaultWebActivity {
 
-   protected AgentWeb mAgentWeb;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         String url2 = "http://www.jd.com";
         String url3 = "file:///android_asset/test.html";
+        getIntent().putExtra(KEY_URL,url3);
+        super.onCreate(savedInstanceState);
 
         MyJsObj jsObj = new MyJsObj();
 
-
-        WebviewHolder holder = new WebviewHolder(this);
-        holder.configLog(true,true);//配置logcat日志和view上日志
-        DebugWebViewClientLogger.logRequestOfNotMainFrame = false;
-        holder.loadUrl(url3);
-
-        setContentView(holder.root);
-
-        mAgentWeb = holder.getAgentWeb();
-        mAgentWeb.getJsInterfaceHolder().addJavaObject(MyJsObj.TAG,jsObj);
-        jsObj.set(mAgentWeb);
-        jsObj.set(mAgentWeb.getWebCreator().getWebView(),this);
+        agentWeb.getJsInterfaceHolder().addJavaObject(MyJsObj.TAG,jsObj);
+        jsObj.set(agentWeb);
+        jsObj.set(agentWeb.getWebCreator().getWebView(),this);
 
     }
 
     @Override
-    public void onBackPressed() {
-        if(!mAgentWeb.back()){
-            super.onBackPressed();
-        }
-    }
+    protected IWebErrorView configWebErrorView() {
+        return new IWebErrorView() {
+            TextView textView;
+            @Override
+            public View getView(Context context) {
+              View root =   View.inflate(context,R.layout.web_error,null);
+                textView = root.findViewById(R.id.web_tv_error);
+                return root;
+            }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mAgentWeb.getWebLifeCycle().onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mAgentWeb.getWebLifeCycle().onResume();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mAgentWeb.getWebLifeCycle().onDestroy();
+            @Override
+            public void setErrorMsg(String url, int code, String desMsg) {
+                textView.setText(desMsg+"\ncode:"+code+"\nurl:"+url);
+            }
+        };
     }
 }

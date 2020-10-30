@@ -27,11 +27,11 @@ public class WebviewHolder {
     }
 
    protected AgentWeb agentWeb;
-    protected Activity activity;
-    protected ITitleBar titleBar;
+    public Activity activity;
+    public ITitleBar titleBar;
     protected DebugViewHolder debugViewHolder;
     protected boolean debugViewEnable;
-    protected String begainUrl;
+    public String begainUrl;
     public String currentUrl;
 
     public void setWebErrorView(IWebErrorView webErrorView) {
@@ -106,7 +106,7 @@ public class WebviewHolder {
                 });*/
 
         if(webErrorView != null){
-            builder.setMainFrameErrorView(webErrorView.getView());
+            builder.setMainFrameErrorView(webErrorView.getView(activity));
         }
         /*if (debugViewEnable) {
             wrappedWebviewClient = new DebugViewClient(debugViewHolder);
