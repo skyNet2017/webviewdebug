@@ -1,2 +1,2 @@
-include ':webviewlib'
+include ':webviewlib','arameters'
 include ':app', ':clientlog'

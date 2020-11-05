@@ -62,3 +62,9 @@ aspectjx {
     enabled true
 }
 
+//编译参数名称 jdk1.8新特性之一，默认关闭的，由于用到了反射，打开它，不然build后没办法启动
+/*
+compileJava {
+    //等价:require -parameters,please add '-parameters' in [preferences]->[Build.JavaCompiler]->[Additional Paramaters]
+    options.compilerArgs << '-parameters'
+}*/

@@ -31,6 +31,7 @@ public class AgentWebActivity extends DefaultWebActivity {
         jsObj.set(agentWeb);
         jsObj.set(agentWeb.getWebCreator().getWebView(),this);
 
+        JsCodeGen.test();
     }
 
     @Override

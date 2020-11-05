@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         testWrap();
 
+
         //测试实现方法
         //new Validation().validate(WebViewClient.class, MyWebViewClient.class);
         //new Validation().validateChrome(WebChromeClient.class, MyChromeClient.class);
