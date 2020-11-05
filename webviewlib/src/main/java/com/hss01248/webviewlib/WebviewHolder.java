@@ -8,14 +8,17 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import com.just.agentweb.AgentWeb;
+import com.just.agentweb.AgentWebConfig;
+import com.just.agentweb.IAgentWebSettings;
 import com.just.agentweb.MiddlewareWebChromeBase;
 import com.just.agentweb.MiddlewareWebClientBase;
-import com.just.agentweb.WebChromeClient;
 
 import uk.co.alt236.webviewdebug.DebugWebChromeClientLogger;
 import uk.co.alt236.webviewdebug.DebugWebViewClient;
@@ -55,6 +58,7 @@ public class WebviewHolder {
             WebView.setWebContentsDebuggingEnabled(enableLog);
         }
         JsObjAspect.enableLog = enableLog;
+        AgentWebConfig.DEBUG = enableLog;
         this.debugViewEnable = debugViewEnable;
         DebugWebViewClient.setJsDebugPannelEnable(enableLog);
         //DebugWebViewClientLogger.logRequestOfNotMainFrame = false;
@@ -117,6 +121,15 @@ public class WebviewHolder {
         }
         wrappedWebviewClient.setWebErrorView(webErrorView);*/
 
+
+         impl2 = new JsWindowOpenImpl2(new IWebViewInit() {
+             @Override
+             public JsWindowOpenImpl2 getImpl() {
+                 return impl2;
+             }
+         });
+
+        builder.setWebChromeClient(impl2);
         builder.useMiddlewareWebChrome(new MiddlewareWebChromeBase(){
             @Override
             public void onReceivedTitle(WebView view, String title) {
@@ -132,13 +145,8 @@ public class WebviewHolder {
                 }
             }
         });
-         impl2 = new JsWindowOpenImpl2(new IWebViewInit() {
-            @Override
-            public JsWindowOpenImpl2 getImpl() {
-                return impl2;
-            }
-        });
-        builder.useMiddlewareWebChrome(impl2);
+
+
         builder.useMiddlewareWebClient(new WrappedWebviewClient());
         if (debugViewEnable) {
             builder.useMiddlewareWebClient( new DebugViewClient(debugViewHolder));
@@ -166,6 +174,7 @@ public class WebviewHolder {
             webConfig.config(builder);
         }
 
+
         if(TextUtils.isEmpty(url)){
             agentWeb = builder.createAgentWeb()
                     .ready().get();
@@ -174,6 +183,7 @@ public class WebviewHolder {
                     .ready().go(url);
         }
 
+        agentWeb.getAgentWebSettings().getWebSettings().setSupportMultipleWindows(true);
 
         //debug辅助功能
         if (debugViewEnable) {
