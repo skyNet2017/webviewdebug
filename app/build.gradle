@@ -52,15 +52,16 @@ dependencies {
     implementation 'com.just.agentweb:filechooser:4.1.4'// (可选)
     implementation 'com.download.library:Downloader:4.1.4'// (可选)
     compile 'com.wuhenzhizao:titlebar:1.1.4'*/
+    implementation 'org.freemarker:freemarker:2.3.29'
 }
 
 
-apply plugin: 'android-aspectjx'
+/*apply plugin: 'android-aspectjx'
 aspectjx {
 //排除所有package路径中包含`android.support`的class文件及库（jar文件）
     exclude 'com.google','com.taobao'
     enabled true
-}
+}*/
 
 //编译参数名称 jdk1.8新特性之一，默认关闭的，由于用到了反射，打开它，不然build后没办法启动
 /*
