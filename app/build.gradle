@@ -53,6 +53,7 @@ dependencies {
     implementation 'com.download.library:Downloader:4.1.4'// (可选)
     compile 'com.wuhenzhizao:titlebar:1.1.4'*/
     implementation 'org.freemarker:freemarker:2.3.29'
+    implementation('com.github.skyNet2017:TakePhoto:4.2.1')
 }
 
 

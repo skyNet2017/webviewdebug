@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:name=".BaseApp"
         android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme">
         <activity android:name="uk.co.alt236.webviewdebugsampleapp.AgentWebActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">

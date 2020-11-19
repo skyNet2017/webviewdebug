@@ -10,12 +10,15 @@ import android.util.Log;
 
 import com.hss01248.webviewlib.WebViewLib;
 
+import org.devio.takephoto.wrap.TakePhotoUtil;
+
 public class BaseApp extends MultiDexApplication {
 
     @Override
     public void onCreate() {
         super.onCreate();
         WebViewLib.init(this,true);
+
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {

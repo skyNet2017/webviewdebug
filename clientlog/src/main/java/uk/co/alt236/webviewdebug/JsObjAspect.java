@@ -30,7 +30,7 @@ public class JsObjAspect {
                Object obj = joinPoin.getThis();
                if(obj instanceof BaseJsObj){
                    BaseJsObj baseJsObj = (BaseJsObj) obj;
-                   DebugWebViewClient.logInJsConsole(baseJsObj.getWebView(),desc);
+                   JsInjector.logInJsConsole(baseJsObj.getWebView(),desc);
                }
 
 

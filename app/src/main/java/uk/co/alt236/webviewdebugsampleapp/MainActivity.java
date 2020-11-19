@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
         final DebugWebViewClient debugWebViewClient = new DebugWebViewClient(new WebViewClient());
         debugWebViewClient.setLoggingEnabled(true);
-        debugWebViewClient.setJsDebugPannelEnable(false);
+        DebugWebViewClient.setJsDebugPannelEnable(true);
         webView.setWebViewClient(debugWebViewClient);
 
         DebugWebChromeClient chromeClient = new DebugWebChromeClient(new WebChromeClient());

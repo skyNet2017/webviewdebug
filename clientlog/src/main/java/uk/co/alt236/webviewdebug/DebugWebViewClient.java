@@ -21,6 +21,7 @@ import android.webkit.HttpAuthHandler;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.SafeBrowsingResponse;
 import android.webkit.SslErrorHandler;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.CipherSuite;
@@ -168,17 +170,25 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
     }
 
     private WebResourceResponse loadErudaFromAssert(Resources resources) {
-        /*try {
+        try {
             AssetManager am = resources.getAssets();
             InputStream inputStream = am.open("eruda.js");
             if (inputStream != null) {
-                WebResourceResponse  response = new WebResourceResponse("application/octet-stream", "UTF-8", inputStream);
+                WebResourceResponse  response = new WebResourceResponse("application/javascript", "UTF-8", inputStream);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    //access-control-allow-origin: *
+                    //access-control-expose-headers: *
+                    Map<String,String> headers = new HashMap<>();
+                    headers.put("access-control-allow-origin","*");
+                    headers.put("access-control-expose-headers","*");
+                    response.setResponseHeaders(headers);
+                }
                 Log.d("DebugWVClient","load eruda from assets");
                 return response;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
         return null;
     }
 
@@ -223,22 +233,34 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
         logger.onPageFinished(view, url);
         client.onPageFinished(view, url);
         if(jsDebugPannelEnable){
-            if(!hasAppendJsDebugPan){
+            invokeJsDebugPan(view);
+            /*if(!hasAppendJsDebugPan){
                 hasAppendJsDebugPan = true;
                 invokeJsDebugPan(view);
-            }
+            }*/
         }
 
 
     }
-    static String fuc3 = "(function () { var script = document.createElement('script'); " +
-            "script.src=\"https://cdn.jsdelivr.net/npm/eruda\"; " +
-            "document.body.appendChild(script); " +
-            "script.onload = function () { eruda.init() } })();";
-    static String fuc4 = "var script = document.createElement('script'); " +
-            "script.src=\"https://cdn.jsdelivr.net/npm/eruda\"; " +
-            "script.onload = function () { eruda.init() } "+
-            "document.body.appendChild(script); " ;
+    static String fuc3 =
+            "(function () { " +
+                    "var txt =  document.getElementsByTagName('html')[0].innerHTML;" +
+                    "console.log('idx:javascr '+txt.indexOf('npm/eruda'));"+
+                    "if (txt.indexOf('npm/eruda') < 0){" +
+                        "var script = document.createElement('script'); " +
+                        "script.src='https://cdn.jsdelivr.net/npm/eruda';" +
+                        "script.onload = function () { setTimeout(function () { console.log('idx:setTimeout');eruda.init();},500)};" +
+                        "document.body.appendChild(script); " +
+                    " }"+
+            "})();";
+    static String fuc4 = "var txt =  document.getElementsByTagName('html')[0].innerHTML;" +
+            "console.log('idx:javascript:'+txt.indexOf('eruda.init()'))"+
+            "    if(txt.indexOf('eruda') < 0){" +
+            "        var script = document.createElement('script');" +
+            "        script.src='https://cdn.jsdelivr.net/npm/eruda';" +
+            "        script.onload = function () { eruda.init() }" +
+            "        document.body.appendChild(script);" +
+            "    }" ;
     // "script.onload = function () { eruda.init() } ";
 
     /*<script src="//cdn.jsdelivr.net/npm/eruda"></script>
@@ -249,8 +271,7 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
             @Override
             public void run() {
                 String js = "javascript:"+fuc3;
-                Log.w("js",js);
-                webView.loadUrl(js);
+                loadJs(webView,js);
             }
         },0);
     }
@@ -260,10 +281,23 @@ public class DebugWebViewClient extends WebViewClient implements LogControl {
             @Override
             public void run() {
                 String js = "javascript:console.log('"+str+"')";
-                Log.w("js",js);
-                webView.loadUrl(js);
+                loadJs(webView,js);
             }
         },0);
+    }
+
+    static void loadJs(WebView webView,String jscode){
+        Log.w("js",jscode);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            webView.evaluateJavascript(jscode, new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                    Log.w("onReceiveValue",value);
+                }
+            });//4.4以上,可以设置webview调用js方法后的回调.
+        } else {
+            webView.loadUrl(jscode);
+        }
     }
 
     //@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
